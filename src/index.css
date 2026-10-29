@@ -251,9 +251,16 @@ textarea.input-field {
   transition: all 0.3s ease;
   border: 1px solid rgba(124, 58, 237, 0.2);
   background: transparent;
-  font-size: 18px;
+  color: #a78bfa;
 }
 .theme-toggle:hover {
   background: rgba(124, 58, 237, 0.1);
   border-color: rgba(124, 58, 237, 0.4);
+  color: #7c3aed;
+}
+html.light .theme-toggle {
+  color: #6d28d9;
+}
+html.light .theme-toggle:hover {
+  color: #7c3aed;
 }

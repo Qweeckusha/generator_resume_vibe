@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import type { Page } from '../App';
 
@@ -14,8 +15,8 @@ export default function Landing({ navigate }: Props) {
       {/* Navbar */}
       <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
-            P
+          <div className="w-8 h-8 flex items-center justify-center">
+            <span className="text-3xl font-black gradient-text leading-none">P</span>
           </div>
           <span className="text-xl font-bold gradient-text">PULUM-PULUM</span>
         </div>
@@ -26,7 +27,7 @@ export default function Landing({ navigate }: Props) {
             className="theme-toggle"
             title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
           </button>
           <a href="#features" className="hover:text-purple-500 transition-colors">Возможности</a>
           <a href="#pricing" className="hover:text-purple-500 transition-colors">Тарифы</a>
