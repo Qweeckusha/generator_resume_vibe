@@ -1,1 +1,166 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #7c3aed;
+  --color-primary-light: #a78bfa;
+  --color-accent: #06b6d4;
+  --color-dark: #0f0a1e;
+  --color-dark-card: #1a1033;
+  --color-dark-surface: #241845;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f0a1e;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1033;
+}
+::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 4px;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(26, 16, 51, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated gradient background */
+.animated-bg {
+  background: linear-gradient(-45deg, #0f0a1e, #1a1033, #241845, #1a1033);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Pulse glow */
+.glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.6); }
+}
+
+/* Page styles for resume preview */
+.resume-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  color: #1a1a2e;
+  padding: 20mm;
+  margin: 0 auto 24px auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  font-size: 11pt;
+  line-height: 1.5;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(124, 58, 237, 0.2);
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Button styles */
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  color: white;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+.btn-secondary:hover {
+  background: rgba(124, 58, 237, 0.25);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+/* Input styles */
+.input-field {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(15, 10, 30, 0.6);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 12px;
+  color: #e2e8f0;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+.input-field:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+.input-field::placeholder {
+  color: #64748b;
+}
+
+textarea.input-field {
+  resize: vertical;
+  min-height: 100px;
+}
