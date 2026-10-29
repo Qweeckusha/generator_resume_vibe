@@ -10,12 +10,9 @@ interface Props {
 
 export default function Loading({ navigate, surveyData, setResumeData }: Props) {
   useEffect(() => {
-    // Simulate AI generation (in real app, this would call the backend)
     const generate = async () => {
-      // Simulate API call delay
       await new Promise((r) => setTimeout(r, 4000));
 
-      // Mock resume data (in real app, this comes from backend + Ollama)
       const resumeData = {
         personal: {
           fullName: surveyData?.fullName || 'Иванов Иван Иванович',
@@ -96,7 +93,7 @@ export default function Loading({ navigate, surveyData, setResumeData }: Props) 
         <h2 className="text-2xl font-bold mb-2">
           AI создаёт ваше <span className="gradient-text">резюме</span>
         </h2>
-        <p className="text-gray-400">
+        <p className="text-muted">
           Анализируем данные и генерируем профессиональный документ...
         </p>
         <div className="mt-8 flex justify-center gap-2">

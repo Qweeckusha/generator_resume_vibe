@@ -56,7 +56,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">ФИО</label>
+              <label className="block text-sm text-muted mb-1">ФИО</label>
               <input
                 className="input-field"
                 placeholder="Иванов Иван Иванович"
@@ -66,7 +66,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Email</label>
+                <label className="block text-sm text-muted mb-1">Email</label>
                 <input
                   className="input-field"
                   placeholder="email@example.com"
@@ -75,7 +75,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Телефон</label>
+                <label className="block text-sm text-muted mb-1">Телефон</label>
                 <input
                   className="input-field"
                   placeholder="+7 (999) 123-45-67"
@@ -86,7 +86,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Город</label>
+                <label className="block text-sm text-muted mb-1">Город</label>
                 <input
                   className="input-field"
                   placeholder="Москва"
@@ -95,7 +95,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Желаемая должность</label>
+                <label className="block text-sm text-muted mb-1">Желаемая должность</label>
                 <input
                   className="input-field"
                   placeholder="Frontend-разработчик"
@@ -109,7 +109,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       case 1:
         return (
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-muted mb-1">
               Опыт работы (опишите места работы, должности, обязанности и достижения)
             </label>
             <textarea
@@ -128,7 +128,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       case 2:
         return (
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-muted mb-1">
               Образование (учебные заведения, степени, годы)
             </label>
             <textarea
@@ -147,7 +147,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       case 3:
         return (
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-muted mb-1">
               Ключевые навыки (через запятую или с новой строки)
             </label>
             <textarea
@@ -162,7 +162,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       case 4:
         return (
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="block text-sm text-muted mb-1">
               О себе (кратко расскажите о себе, целях, сильных сторонах)
             </label>
             <textarea
@@ -195,7 +195,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
               >
                 <div className="text-4xl mb-2">{t.emoji}</div>
                 <div className="font-semibold">{t.name}</div>
-                <div className="text-xs text-gray-400 mt-1">{t.desc}</div>
+                <div className="text-xs text-muted mt-1">{t.desc}</div>
               </motion.button>
             ))}
           </div>
@@ -209,17 +209,17 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       <div className="max-w-3xl mx-auto w-full mb-8">
         <button
           onClick={() => navigate('landing')}
-          className="text-gray-400 hover:text-white transition-colors text-sm mb-4"
+          className="text-muted hover:text-purple-500 transition-colors text-sm mb-4"
         >
           ← На главную
         </button>
         <h1 className="text-3xl font-bold">
           Заполните <span className="gradient-text">анкету</span>
         </h1>
-        <p className="text-gray-400 mt-2">Шаг {step + 1} из {STEPS.length}</p>
+        <p className="text-muted mt-2">Шаг {step + 1} из {STEPS.length}</p>
 
         {/* Progress bar */}
-        <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
+        <div className="mt-4 h-2 bg-gray-800/30 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-purple-500 to-cyan-400"
             initial={{ width: 0 }}
@@ -234,7 +234,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
             <div
               key={s.id}
               className={`flex flex-col items-center text-xs ${
-                i <= step ? 'text-purple-400' : 'text-gray-600'
+                i <= step ? 'text-purple-400' : 'text-muted'
               }`}
             >
               <div
@@ -243,7 +243,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
                     ? 'bg-purple-500 text-white'
                     : i === step
                     ? 'bg-purple-500/20 border-2 border-purple-500'
-                    : 'bg-gray-800'
+                    : 'bg-gray-800/30'
                 }`}
               >
                 {i < step ? '✓' : s.icon}

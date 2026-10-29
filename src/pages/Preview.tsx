@@ -31,12 +31,12 @@ export default function Preview({ navigate, resumeData }: Props) {
         <div className="glass rounded-2xl p-4 flex items-center justify-between">
           <button
             onClick={() => navigate('landing')}
-            className="text-gray-400 hover:text-white transition-colors text-sm"
+            className="text-muted hover:text-purple-500 transition-colors text-sm"
           >
             ← На главную
           </button>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">Ваше резюме готово!</span>
+            <span className="text-sm text-muted">Ваше резюме готово!</span>
             <motion.button
               className="btn-primary text-sm px-6 py-2"
               whileHover={{ scale: 1.05 }}
@@ -197,7 +197,7 @@ export default function Preview({ navigate, resumeData }: Props) {
       {/* Bottom actions */}
       <div className="max-w-[210mm] mx-auto mt-8 mb-12">
         <div className="glass rounded-2xl p-6 text-center">
-          <p className="text-gray-400 mb-4">Вас устраивает результат?</p>
+          <p className="text-muted mb-4">Вас устраивает результат?</p>
           <div className="flex justify-center gap-4">
             <button className="btn-secondary" onClick={() => navigate('survey')}>
               ✏️ Редактировать

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ResumeAI — Умное резюме за минуту</title>
+    <title>PULUM-PULUM — Умное резюме за минуту</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -39,19 +39,20 @@
           document.documentElement.setAttribute("data-theme", theme);
         }
 
+        // Определяем тему из localStorage или используем dark по умолчанию
+        const savedTheme = localStorage.getItem("pulum-theme") || "dark";
+        applyThemeToDOM(savedTheme);
+
         if (isInIframe) {
-          // 监听父窗口主动推送的主题消息
           window.addEventListener("message", function (event) {
             if (event.data && typeof event.data.theme === "string") {
               const theme = event.data.theme;
               if (theme === "light" || theme === "dark") {
                 applyThemeToDOM(theme);
+                localStorage.setItem("pulum-theme", theme);
               }
             }
           });
-        } else {
-          // 非 iframe 环境，使用默认 light 主题
-          applyThemeToDOM("light");
         }
       })();
     </script>

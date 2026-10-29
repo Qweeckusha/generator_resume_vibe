@@ -36,7 +36,7 @@ export default function Payment({ navigate }: Props) {
       <div className="max-w-lg w-full">
         <button
           onClick={() => navigate('survey')}
-          className="text-gray-400 hover:text-white transition-colors text-sm mb-4"
+          className="text-muted hover:text-purple-500 transition-colors text-sm mb-4"
         >
           ← Назад к анкете
         </button>
@@ -49,14 +49,14 @@ export default function Payment({ navigate }: Props) {
           <h1 className="text-2xl font-bold mb-2">
             Оплата <span className="gradient-text">заказа</span>
           </h1>
-          <p className="text-gray-400 text-sm mb-6">Тариф «Про» — создание резюме с помощью AI</p>
+          <p className="text-muted text-sm mb-6">Тариф «Про» — создание резюме с помощью AI</p>
 
           {/* Order summary */}
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
             <div className="flex justify-between items-center">
               <div>
                 <div className="font-semibold">Резюме «Про»</div>
-                <div className="text-xs text-gray-400">3 шаблона • PDF • Сопроводительное письмо</div>
+                <div className="text-xs text-muted">3 шаблона • PDF • Сопроводительное письмо</div>
               </div>
               <div className="text-2xl font-bold gradient-text">599 ₽</div>
             </div>
@@ -65,7 +65,7 @@ export default function Payment({ navigate }: Props) {
           {/* Card form */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Номер карты</label>
+              <label className="block text-sm text-muted mb-1">Номер карты</label>
               <input
                 className="input-field font-mono"
                 placeholder="0000 0000 0000 0000"
@@ -75,7 +75,7 @@ export default function Payment({ navigate }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Срок</label>
+                <label className="block text-sm text-muted mb-1">Срок</label>
                 <input
                   className="input-field font-mono"
                   placeholder="MM/YY"
@@ -84,7 +84,7 @@ export default function Payment({ navigate }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">CVV</label>
+                <label className="block text-sm text-muted mb-1">CVV</label>
                 <input
                   className="input-field font-mono"
                   placeholder="000"
@@ -95,7 +95,7 @@ export default function Payment({ navigate }: Props) {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Имя владельца</label>
+              <label className="block text-sm text-muted mb-1">Имя владельца</label>
               <input
                 className="input-field"
                 placeholder="IVAN IVANOV"
@@ -122,7 +122,7 @@ export default function Payment({ navigate }: Props) {
             )}
           </motion.button>
 
-          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted">
             <span>🔒</span> Безопасная оплата • Данные защищены
           </div>
         </motion.div>

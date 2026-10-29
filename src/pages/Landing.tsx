@@ -12,14 +12,14 @@ export default function Landing({ navigate }: Props) {
       <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
-            R
+            P
           </div>
-          <span className="text-xl font-bold gradient-text">ResumeAI</span>
+          <span className="text-xl font-bold gradient-text">PULUM-PULUM</span>
         </div>
-        <div className="flex gap-6 text-sm text-gray-300">
-          <a href="#features" className="hover:text-white transition-colors">Возможности</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Тарифы</a>
-          <a href="#how" className="hover:text-white transition-colors">Как это работает</a>
+        <div className="flex gap-6 text-sm text-muted">
+          <a href="#features" className="hover:text-purple-500 transition-colors">Возможности</a>
+          <a href="#pricing" className="hover:text-purple-500 transition-colors">Тарифы</a>
+          <a href="#how" className="hover:text-purple-500 transition-colors">Как это работает</a>
         </div>
       </nav>
 
@@ -36,7 +36,7 @@ export default function Landing({ navigate }: Props) {
               <br />
               <span className="gradient-text">за 2 минуты</span>
             </h1>
-            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+            <p className="text-xl text-muted mb-10 max-w-2xl mx-auto">
               Искусственный интеллект создаст профессиональное резюме на основе ваших данных.
               Просто ответьте на несколько вопросов — получите готовый PDF.
             </p>
@@ -64,7 +64,7 @@ export default function Landing({ navigate }: Props) {
             ].map((s) => (
               <div key={s.label} className="glass rounded-2xl p-6">
                 <div className="text-3xl font-bold gradient-text">{s.num}</div>
-                <div className="text-gray-400 text-sm mt-1">{s.label}</div>
+                <div className="text-muted text-sm mt-1">{s.label}</div>
               </div>
             ))}
           </motion.div>
@@ -75,7 +75,7 @@ export default function Landing({ navigate }: Props) {
       <section id="features" className="px-6 py-20">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Почему <span className="gradient-text">ResumeAI</span>?
+            Почему <span className="gradient-text">PULUM-PULUM</span>?
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
@@ -105,7 +105,7 @@ export default function Landing({ navigate }: Props) {
               >
                 <div className="text-4xl mb-4">{f.icon}</div>
                 <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-                <p className="text-gray-400 text-sm">{f.desc}</p>
+                <p className="text-muted text-sm">{f.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -134,7 +134,7 @@ export default function Landing({ navigate }: Props) {
                 <div className="text-4xl font-bold gradient-text opacity-50">{s.step}</div>
                 <div>
                   <h3 className="text-lg font-semibold">{s.title}</h3>
-                  <p className="text-gray-400 text-sm">{s.desc}</p>
+                  <p className="text-muted text-sm">{s.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -186,7 +186,7 @@ export default function Landing({ navigate }: Props) {
                 <div className="text-3xl font-bold gradient-text mb-4">{plan.price}</div>
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((f) => (
-                    <li key={f} className="text-gray-400 text-sm flex items-center gap-2">
+                    <li key={f} className="text-muted text-sm flex items-center gap-2">
                       <span className="text-green-400">✓</span> {f}
                     </li>
                   ))}
@@ -208,8 +208,8 @@ export default function Landing({ navigate }: Props) {
       </section>
 
       {/* Footer */}
-      <footer className="glass mt-20 px-6 py-8 text-center text-gray-500 text-sm">
-        <p>© 2026 ResumeAI. Все права защищены.</p>
+      <footer className="glass mt-20 px-6 py-8 text-center text-muted text-sm">
+        <p>© 2026 PULUM-PULUM. Все права защищены.</p>
       </footer>
     </div>
   );
