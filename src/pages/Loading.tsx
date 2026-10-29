@@ -91,12 +91,12 @@ export default function Loading({ navigate, surveyData, setResumeData }: Props) 
       >
         <div className="spinner mx-auto mb-8" />
         <h2 className="text-2xl font-bold mb-2">
-          AI создаёт ваше <span className="gradient-text">резюме</span>
+          AI создаёт твоё <span className="gradient-text">резюме</span>
         </h2>
         <p className="text-muted">
           Анализируем данные и генерируем профессиональный документ...
         </p>
-        <div className="mt-8 flex justify-center gap-2">
+        <div className="mt-8 flex justify-center gap-2 flex-wrap">
           {['Анализ данных', 'Генерация текста', 'Форматирование'].map((s, i) => (
             <motion.div
               key={s}

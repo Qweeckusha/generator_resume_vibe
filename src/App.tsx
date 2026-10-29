@@ -7,6 +7,7 @@ import Preview from './pages/Preview';
 import Loading from './pages/Loading';
 
 export type Page = 'landing' | 'survey' | 'payment' | 'loading' | 'preview';
+export type Plan = 'free' | 'pro' | 'pro_plus' | 'premium';
 
 export interface SurveyData {
   fullName: string;
@@ -19,6 +20,7 @@ export interface SurveyData {
   skills: string;
   about: string;
   template: 'classic' | 'modern' | 'creative';
+  plan: Plan;
 }
 
 export default function App() {
@@ -31,15 +33,6 @@ export default function App() {
 
   return (
     <div className="animated-bg min-h-screen">
-      {/* Theme toggle (floating) */}
-      <button
-        className="theme-toggle fixed top-4 right-4 z-[100]"
-        onClick={toggleTheme}
-        title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
-
       {page === 'landing' && <Landing navigate={navigate} />}
       {page === 'survey' && (
         <Survey
@@ -48,11 +41,11 @@ export default function App() {
           setSurveyData={setSurveyData}
         />
       )}
-      {page === 'payment' && <Payment navigate={navigate} />}
+      {page === 'payment' && <Payment navigate={navigate} surveyData={surveyData} />}
       {page === 'loading' && (
         <Loading navigate={navigate} surveyData={surveyData} setResumeData={setResumeData} />
       )}
-      {page === 'preview' && <Preview navigate={navigate} resumeData={resumeData} />}
+      {page === 'preview' && <Preview navigate={navigate} resumeData={resumeData} surveyData={surveyData} />}
     </div>
   );
 }

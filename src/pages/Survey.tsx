@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Page, SurveyData } from '../App';
+import type { Page, SurveyData, Plan } from '../App';
 
 interface Props {
   navigate: (p: Page) => void;
@@ -9,11 +9,13 @@ interface Props {
 }
 
 const STEPS = [
-  { id: 'personal', title: 'Личные данные', icon: '👤' },
-  { id: 'experience', title: 'Опыт работы', icon: '💼' },
+  { id: 'intro', title: 'Знакомство', icon: '👋' },
+  { id: 'goal', title: 'Цель', icon: '💼' },
+  { id: 'experience', title: 'Опыт', icon: '💪' },
   { id: 'education', title: 'Образование', icon: '🎓' },
   { id: 'skills', title: 'Навыки', icon: '⚡' },
   { id: 'about', title: 'О себе', icon: '✨' },
+  { id: 'plan', title: 'Тариф', icon: '💳' },
   { id: 'template', title: 'Шаблон', icon: '🎨' },
 ];
 
@@ -31,6 +33,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       skills: '',
       about: '',
       template: 'modern',
+      plan: 'pro',
     }
   );
 
@@ -47,7 +50,11 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
 
   const submit = () => {
     setSurveyData(data);
-    navigate('payment');
+    if (data.plan === 'free') {
+      navigate('loading');
+    } else {
+      navigate('payment');
+    }
   };
 
   const renderStep = () => {
@@ -55,11 +62,12 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       case 0:
         return (
           <div className="space-y-4">
+            <p className="text-muted mb-6">Привет! Давай познакомимся. Как тебя зовут и как с тобой связаться?</p>
             <div>
               <label className="block text-sm text-muted mb-1">ФИО</label>
               <input
                 className="input-field"
-                placeholder="Иванов Иван Иванович"
+                placeholder="Например, Иванов Иван Иванович"
                 value={data.fullName}
                 onChange={(e) => update('fullName', e.target.value)}
               />
@@ -84,120 +92,216 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-muted mb-1">Город</label>
-                <input
-                  className="input-field"
-                  placeholder="Москва"
-                  value={data.city}
-                  onChange={(e) => update('city', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-muted mb-1">Желаемая должность</label>
-                <input
-                  className="input-field"
-                  placeholder="Frontend-разработчик"
-                  value={data.position}
-                  onChange={(e) => update('position', e.target.value)}
-                />
-              </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Город</label>
+              <input
+                className="input-field"
+                placeholder="Москва"
+                value={data.city}
+                onChange={(e) => update('city', e.target.value)}
+              />
             </div>
           </div>
         );
       case 1:
         return (
           <div>
-            <label className="block text-sm text-muted mb-1">
-              Опыт работы (опишите места работы, должности, обязанности и достижения)
-            </label>
-            <textarea
-              className="input-field"
-              rows={8}
-              placeholder={`ООО "Технолоджи", 2022 — н.в.
-Должность: Frontend-разработчик
-• Разработал SPA на React с нуля
-• Увеличил скорость загрузки на 40%
-• Менторил junior-разработчиков`}
-              value={data.experience}
-              onChange={(e) => update('experience', e.target.value)}
-            />
+            <p className="text-muted mb-6">
+              На какую должность ты планируешь откликаться? Это поможет нам адаптировать резюме под конкретную роль.
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">Желаемая должность</label>
+              <input
+                className="input-field"
+                placeholder="Например: Frontend-разработчик, Менеджер проектов, Дизайнер"
+                value={data.position}
+                onChange={(e) => update('position', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Если ты ещё не определился, напиши общее направление — например, "Разработка" или "Маркетинг".
+            </p>
           </div>
         );
       case 2:
         return (
           <div>
-            <label className="block text-sm text-muted mb-1">
-              Образование (учебные заведения, степени, годы)
-            </label>
-            <textarea
-              className="input-field"
-              rows={6}
-              placeholder={`МГУ им. Ломоносова, 2018–2022
-Бакалавр, Прикладная математика и информатика
+            <p className="text-muted mb-6">
+              Где ты работал(а) раньше? Не переживай, если это были подработки, стажировки или учебные проекты — всё считается!
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">Опыт работы</label>
+              <textarea
+                className="input-field"
+                rows={8}
+                placeholder={`ООО "Технолоджи", 2022 — настоящее время
+Должность: Frontend-разработчик
 
-Курсы:
-• Яндекс.Практикум, Веб-разработчик, 2022`}
-              value={data.education}
-              onChange={(e) => update('education', e.target.value)}
-            />
+Чем занимался:
+- Пилил фичи на React
+- Фиксил баги, которые находили тестировщики
+- Общался с дизайнерами по макетам
+
+Достижения:
+- Ускорил загрузку сайта на 40%
+- Научил новичков, теперь они работают самостоятельно`}
+                value={data.experience}
+                onChange={(e) => update('experience', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Пиши как есть, своими словами. Наш AI поможет "упаковать" это в профессиональные формулировки!
+            </p>
           </div>
         );
       case 3:
         return (
           <div>
-            <label className="block text-sm text-muted mb-1">
-              Ключевые навыки (через запятую или с новой строки)
-            </label>
-            <textarea
-              className="input-field"
-              rows={5}
-              placeholder="React, TypeScript, Node.js, PostgreSQL, Docker, Git, Figma, Agile/Scrum"
-              value={data.skills}
-              onChange={(e) => update('skills', e.target.value)}
-            />
+            <p className="text-muted mb-6">
+              Расскажи о своём образовании — вуз, курсы, сертификаты. Даже если это онлайн-курсы или самообразование!
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">Образование</label>
+              <textarea
+                className="input-field"
+                rows={6}
+                placeholder={`МГУ им. Ломоносова, 2018–2022
+Бакалавр, Прикладная математика и информатика
+
+Курсы:
+- Яндекс.Практикум, Веб-разработчик, 2022
+- Stepik, Алгоритмы и структуры данных, 2021`}
+                value={data.education}
+                onChange={(e) => update('education', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Не забывай про онлайн-курсы, сертификаты и даже пет-проекты — всё это ценный опыт!
+            </p>
           </div>
         );
       case 4:
         return (
           <div>
-            <label className="block text-sm text-muted mb-1">
-              О себе (кратко расскажите о себе, целях, сильных сторонах)
-            </label>
-            <textarea
-              className="input-field"
-              rows={6}
-              placeholder="Увлечённый разработчик с 3+ годами опыта. Люблю создавать удобные интерфейсы и оптимизировать производительность. Ищу команду, где смогу расти как техлид."
-              value={data.about}
-              onChange={(e) => update('about', e.target.value)}
-            />
+            <p className="text-muted mb-6">
+              Перечисли свои ключевые навыки — технические, soft skills, инструменты. Пиши всё, что приходит в голову!
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">Навыки</label>
+              <textarea
+                className="input-field"
+                rows={5}
+                placeholder={`Технические:
+React, TypeScript, Node.js, PostgreSQL, Docker, Git
+
+Soft skills:
+Работа в команде, коммуникация, решение проблем
+
+Инструменты:
+Figma, Jira, Slack, Notion`}
+                value={data.skills}
+                onChange={(e) => update('skills', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Не стесняйся перечислять даже базовые навыки — иногда именно они становятся ключевыми для вакансии!
+            </p>
           </div>
         );
       case 5:
         return (
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { id: 'classic', name: 'Классический', desc: 'Строгий и деловой', emoji: '📋' },
-              { id: 'modern', name: 'Современный', desc: 'Минимализм и стиль', emoji: '✨' },
-              { id: 'creative', name: 'Креативный', desc: 'Яркий и запоминающийся', emoji: '🎨' },
-            ].map((t) => (
-              <motion.button
-                key={t.id}
-                className={`p-6 rounded-2xl border-2 text-center transition-all ${
-                  data.template === t.id
-                    ? 'border-purple-500 bg-purple-500/10'
-                    : 'border-gray-700 hover:border-purple-500/50'
-                }`}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => update('template', t.id)}
-              >
-                <div className="text-4xl mb-2">{t.emoji}</div>
-                <div className="font-semibold">{t.name}</div>
-                <div className="text-xs text-muted mt-1">{t.desc}</div>
-              </motion.button>
-            ))}
+          <div>
+            <p className="text-muted mb-6">
+              Что тебя мотивирует? Какие у тебя сильные стороны? Чем ты гордишься? Пиши свободно, как будто рассказываешь другу.
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">О себе</label>
+              <textarea
+                className="input-field"
+                rows={6}
+                placeholder="Я увлечённый разработчик, который любит создавать удобные интерфейсы. Мне нравится оптимизировать производительность и находить элегантные решения сложных задач. В свободное время изучаю новые технологии и участвую в open-source проектах."
+                value={data.about}
+                onChange={(e) => update('about', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Это твоя возможность показать себя как личность. Не бойся быть искренним!
+            </p>
+          </div>
+        );
+      case 6:
+        return (
+          <div>
+            <p className="text-muted mb-6">
+              У нас есть несколько вариантов — от бесплатного до премиум. Выбери тот, который подходит именно тебе.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: 'free', name: 'Free', price: '0 ₽', desc: 'Базовый шаблон с вотермаркой', features: ['1 резюме/мес', 'Вотермарка'] },
+                { id: 'pro', name: 'Pro', price: '199 ₽', desc: 'PDF без вотермарки + ИИ', features: ['Премиум-шаблоны', 'Без вотермарки'], popular: true },
+                { id: 'pro_plus', name: 'Pro+', price: '299 ₽', desc: 'Pro + сопроводительное', features: ['Всё из Pro', 'Сопроводительное'] },
+                { id: 'premium', name: 'Premium', price: '499 ₽/мес', desc: 'Безлимит + все фичи', features: ['Безлимит', 'Перевод на английский'] },
+              ].map((p) => (
+                <motion.button
+                  key={p.id}
+                  className={`p-5 rounded-2xl border-2 text-left transition-all relative ${
+                    data.plan === p.id
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 hover:border-purple-500/50'
+                  } ${p.popular ? 'ring-2 ring-purple-500/50' : ''}`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => update('plan', p.id)}
+                >
+                  {p.popular && (
+                    <div className="absolute -top-2 right-3 bg-gradient-to-r from-purple-500 to-cyan-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      ⭐
+                    </div>
+                  )}
+                  <div className="font-bold text-lg">{p.name}</div>
+                  <div className="text-2xl font-bold gradient-text mb-1">{p.price}</div>
+                  <div className="text-xs text-muted mb-2">{p.desc}</div>
+                  <div className="text-xs text-muted">
+                    {p.features.join(' • ')}
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+            <p className="text-xs text-muted mt-4 italic">
+              💡 Для первого резюме рекомендуем Pro — оптимальное соотношение цены и качества!
+            </p>
+          </div>
+        );
+      case 7:
+        return (
+          <div>
+            <p className="text-muted mb-6">
+              У нас есть три стиля — выбери тот, который больше подходит твоей профессии и характеру.
+            </p>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { id: 'classic', name: 'Классический', desc: 'Строгий и деловой', emoji: '📋', for: 'юристов, финансистов' },
+                { id: 'modern', name: 'Современный', desc: 'Минимализм и стиль', emoji: '✨', for: 'разработчиков, дизайнеров' },
+                { id: 'creative', name: 'Креативный', desc: 'Яркий и запоминающийся', emoji: '🎨', for: 'творческих профессий' },
+              ].map((t) => (
+                <motion.button
+                  key={t.id}
+                  className={`p-6 rounded-2xl border-2 text-center transition-all ${
+                    data.template === t.id
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 hover:border-purple-500/50'
+                  }`}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => update('template', t.id)}
+                >
+                  <div className="text-4xl mb-2">{t.emoji}</div>
+                  <div className="font-semibold">{t.name}</div>
+                  <div className="text-xs text-muted mt-1">{t.desc}</div>
+                  <div className="text-xs text-muted mt-2 italic">Для: {t.for}</div>
+                </motion.button>
+              ))}
+            </div>
           </div>
         );
     }
@@ -214,7 +318,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
           ← На главную
         </button>
         <h1 className="text-3xl font-bold">
-          Заполните <span className="gradient-text">анкету</span>
+          Интервью с <span className="gradient-text">AI-помощником</span>
         </h1>
         <p className="text-muted mt-2">Шаг {step + 1} из {STEPS.length}</p>
 
@@ -290,7 +394,7 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
             </button>
           ) : (
             <button className="btn-primary" onClick={submit}>
-              Перейти к оплате →
+              {data.plan === 'free' ? 'Создать резюме →' : 'Перейти к оплате →'}
             </button>
           )}
         </div>

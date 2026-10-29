@@ -1,17 +1,28 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import type { Page } from '../App';
+import type { Page, SurveyData } from '../App';
 
 interface Props {
   navigate: (p: Page) => void;
+  surveyData: SurveyData | null;
 }
 
-export default function Payment({ navigate }: Props) {
+export default function Payment({ navigate, surveyData }: Props) {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvv, setCvv] = useState('');
   const [name, setName] = useState('');
   const [processing, setProcessing] = useState(false);
+
+  const plan = surveyData?.plan || 'pro';
+  
+  const plans = {
+    pro: { name: 'Pro', price: '199 ₽', features: 'PDF без вотермарки + ИИ' },
+    pro_plus: { name: 'Pro+', price: '299 ₽', features: 'Pro + сопроводительное письмо' },
+    premium: { name: 'Premium', price: '499 ₽/мес', features: 'Безлимит + все фичи' },
+  };
+
+  const currentPlan = plans[plan as keyof typeof plans] || plans.pro;
 
   const formatCard = (v: string) => {
     const digits = v.replace(/\D/g, '').slice(0, 16);
@@ -49,16 +60,16 @@ export default function Payment({ navigate }: Props) {
           <h1 className="text-2xl font-bold mb-2">
             Оплата <span className="gradient-text">заказа</span>
           </h1>
-          <p className="text-muted text-sm mb-6">Тариф «Про» — создание резюме с помощью AI</p>
+          <p className="text-muted text-sm mb-6">Тариф «{currentPlan.name}» — создание резюме с помощью AI</p>
 
           {/* Order summary */}
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
             <div className="flex justify-between items-center">
               <div>
-                <div className="font-semibold">Резюме «Про»</div>
-                <div className="text-xs text-muted">3 шаблона • PDF • Сопроводительное письмо</div>
+                <div className="font-semibold">Резюме «{currentPlan.name}»</div>
+                <div className="text-xs text-muted">{currentPlan.features}</div>
               </div>
-              <div className="text-2xl font-bold gradient-text">599 ₽</div>
+              <div className="text-2xl font-bold gradient-text">{currentPlan.price}</div>
             </div>
           </div>
 
@@ -118,7 +129,7 @@ export default function Payment({ navigate }: Props) {
                 Обработка...
               </span>
             ) : (
-              'Оплатить 599 ₽'
+              `Оплатить ${currentPlan.price}`
             )}
           </motion.button>
 

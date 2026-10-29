@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTheme } from '../hooks/useTheme';
 import type { Page } from '../App';
 
 interface Props {
@@ -6,6 +7,8 @@ interface Props {
 }
 
 export default function Landing({ navigate }: Props) {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
@@ -16,7 +19,15 @@ export default function Landing({ navigate }: Props) {
           </div>
           <span className="text-xl font-bold gradient-text">PULUM-PULUM</span>
         </div>
-        <div className="flex gap-6 text-sm text-muted">
+        <div className="flex items-center gap-6 text-sm text-muted">
+          {/* Theme toggle button */}
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle"
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <a href="#features" className="hover:text-purple-500 transition-colors">Возможности</a>
           <a href="#pricing" className="hover:text-purple-500 transition-colors">Тарифы</a>
           <a href="#how" className="hover:text-purple-500 transition-colors">Как это работает</a>
@@ -34,11 +45,11 @@ export default function Landing({ navigate }: Props) {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               Идеальное резюме
               <br />
-              <span className="gradient-text">за 2 минуты</span>
+              <span className="gradient-text">за 10 минут</span>
             </h1>
             <p className="text-xl text-muted mb-10 max-w-2xl mx-auto">
-              Искусственный интеллект создаст профессиональное резюме на основе ваших данных.
-              Просто ответьте на несколько вопросов — получите готовый PDF.
+              Пройди простое интервью с AI-помощником — и получи профессиональное резюме, 
+              которое выделит тебя среди других кандидатов.
             </p>
             <motion.button
               className="btn-primary text-lg px-10 py-4"
@@ -48,6 +59,7 @@ export default function Landing({ navigate }: Props) {
             >
               Создать резюме →
             </motion.button>
+            <p className="text-sm text-muted mt-4">Бесплатно • Без регистрации</p>
           </motion.div>
 
           {/* Stats */}
@@ -60,7 +72,7 @@ export default function Landing({ navigate }: Props) {
             {[
               { num: '10 000+', label: 'Резюме создано' },
               { num: '95%', label: 'Проходят ATS' },
-              { num: '2 мин', label: 'Среднее время' },
+              { num: '10 мин', label: 'Среднее время' },
             ].map((s) => (
               <div key={s.label} className="glass rounded-2xl p-6">
                 <div className="text-3xl font-bold gradient-text">{s.num}</div>
@@ -80,19 +92,19 @@ export default function Landing({ navigate }: Props) {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: '🤖',
-                title: 'AI-генерация',
-                desc: 'Нейросеть qwen3 анализирует ваш опыт и создаёт продающий текст',
+                icon: '🎤',
+                title: 'Интервью с AI',
+                desc: 'Не заполняй пустые формы — просто расскажи о себе своими словами',
               },
               {
-                icon: '🎨',
-                title: '3 шаблона',
-                desc: 'Классический, современный и креативный дизайн на выбор',
+                icon: '✨',
+                title: 'AI-переформулирование',
+                desc: 'Нейросеть превратит твой опыт в профессиональные формулировки',
               },
               {
                 icon: '📄',
                 title: 'Готовый PDF',
-                desc: 'Скачайте резюме в формате PDF, готовом к отправке работодателю',
+                desc: 'Скачай резюме в формате PDF, готовое к отправке работодателю',
               },
             ].map((f, i) => (
               <motion.div
@@ -120,9 +132,9 @@ export default function Landing({ navigate }: Props) {
           </h2>
           <div className="space-y-6">
             {[
-              { step: '01', title: 'Заполните анкету', desc: 'Расскажите о себе, опыте и навыках' },
-              { step: '02', title: 'Оплатите', desc: 'Выберите тариф и оформите заказ' },
-              { step: '03', title: 'Получите резюме', desc: 'AI создаст резюме и покажет предпросмотр' },
+              { step: '01', title: 'Пройди интервью', desc: 'Ответь на простые вопросы о себе и своём опыте' },
+              { step: '02', title: 'AI создаст резюме', desc: 'Нейросеть переформулирует твой опыт в профессиональный текст' },
+              { step: '03', title: 'Скачай PDF', desc: 'Получи готовое резюме, которое можно сразу отправлять' },
             ].map((s, i) => (
               <motion.div
                 key={s.step}
@@ -144,37 +156,52 @@ export default function Landing({ navigate }: Props) {
 
       {/* Pricing */}
       <section id="pricing" className="px-6 py-20">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Выберите <span className="gradient-text">тариф</span>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Выбери <span className="gradient-text">тариф</span>
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <p className="text-center text-muted mb-12">Начни бесплатно или выбери премиум для лучшего результата</p>
+          <div className="grid md:grid-cols-4 gap-6">
             {[
               {
-                name: 'Базовый',
-                price: '299 ₽',
-                features: ['1 шаблон', 'PDF-файл', 'Базовая генерация'],
+                name: 'Free',
+                price: '0 ₽',
+                period: '',
+                features: ['1 резюме в месяц', 'Базовый шаблон', 'Вотермарка PULUM-PULUM', 'Текстовый экспорт'],
                 popular: false,
+                plan: 'free',
               },
               {
-                name: 'Про',
-                price: '599 ₽',
-                features: ['3 шаблона', 'PDF-файл', 'Расширенная генерация', 'Сопроводительное письмо'],
+                name: 'Pro',
+                price: '199 ₽',
+                period: '',
+                features: ['1 PDF-резюме', 'Премиум-шаблоны', 'Без вотермарки', 'ИИ-переформулирование'],
                 popular: true,
+                plan: 'pro',
               },
               {
-                name: 'Премиум',
-                price: '999 ₽',
-                features: ['Все шаблоны', 'PDF + DOCX', 'AI-оптимизация', '3 ревизии', 'Приоритет'],
+                name: 'Pro+',
+                price: '299 ₽',
+                period: '',
+                features: ['Всё из Pro', 'Сопроводительное письмо', 'Приоритетная генерация', 'Адаптация под вакансию'],
                 popular: false,
+                plan: 'pro_plus',
+              },
+              {
+                name: 'Premium',
+                price: '499 ₽',
+                period: '/мес',
+                features: ['Безлимитные резюме', 'Все шаблоны', 'Перевод на английский', 'ИИ-адаптация под вакансию'],
+                popular: false,
+                plan: 'premium',
               },
             ].map((plan, i) => (
               <motion.div
                 key={plan.name}
-                className={`glass rounded-2xl p-8 relative ${plan.popular ? 'border-purple-500 glow-pulse' : ''}`}
+                className={`glass rounded-2xl p-6 relative ${plan.popular ? 'border-purple-500 glow-pulse' : ''}`}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 }}
+                transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -5 }}
               >
                 {plan.popular && (
@@ -183,23 +210,24 @@ export default function Landing({ navigate }: Props) {
                   </div>
                 )}
                 <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                <div className="text-3xl font-bold gradient-text mb-4">{plan.price}</div>
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className="text-3xl font-bold gradient-text">{plan.price}</span>
+                  {plan.period && <span className="text-muted text-sm">{plan.period}</span>}
+                </div>
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((f) => (
-                    <li key={f} className="text-muted text-sm flex items-center gap-2">
-                      <span className="text-green-400">✓</span> {f}
+                    <li key={f} className="text-muted text-sm flex items-start gap-2">
+                      <span className="text-green-400 mt-0.5">✓</span> {f}
                     </li>
                   ))}
                 </ul>
                 <button
                   className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                    plan.popular
-                      ? 'btn-primary'
-                      : 'btn-secondary'
+                    plan.popular ? 'btn-primary' : 'btn-secondary'
                   }`}
                   onClick={() => navigate('survey')}
                 >
-                  Выбрать
+                  {plan.name === 'Free' ? 'Начать бесплатно' : 'Выбрать'}
                 </button>
               </motion.div>
             ))}

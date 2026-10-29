@@ -1,18 +1,21 @@
 import { motion } from 'framer-motion';
-import type { Page } from '../App';
+import type { Page, SurveyData } from '../App';
 
 interface Props {
   navigate: (p: Page) => void;
   resumeData: any;
+  surveyData: SurveyData | null;
 }
 
-export default function Preview({ navigate, resumeData }: Props) {
+export default function Preview({ navigate, resumeData, surveyData }: Props) {
   if (!resumeData) {
     navigate('landing');
     return null;
   }
 
   const { personal, summary, experience, education, skills, template } = resumeData;
+  const plan = surveyData?.plan || 'pro';
+  const isFree = plan === 'free';
 
   const getAccentColor = () => {
     switch (template) {
@@ -28,15 +31,32 @@ export default function Preview({ navigate, resumeData }: Props) {
     <div className="min-h-screen px-4 py-8">
       {/* Toolbar */}
       <div className="max-w-[210mm] mx-auto mb-6">
-        <div className="glass rounded-2xl p-4 flex items-center justify-between">
+        <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-4">
           <button
             onClick={() => navigate('landing')}
             className="text-muted hover:text-purple-500 transition-colors text-sm"
           >
             ← На главную
           </button>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted">Ваше резюме готово!</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            {isFree && (
+              <div className="text-sm text-orange-400 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>Free-тариф с вотермаркой</span>
+                <button
+                  className="btn-secondary text-xs px-3 py-1"
+                  onClick={() => navigate('survey')}
+                >
+                  Убрать вотермарку
+                </button>
+              </div>
+            )}
+            {!isFree && (
+              <span className="text-sm text-green-400 flex items-center gap-2">
+                <span>✓</span>
+                <span>Ваше резюме готово!</span>
+              </span>
+            )}
             <motion.button
               className="btn-primary text-sm px-6 py-2"
               whileHover={{ scale: 1.05 }}
@@ -53,11 +73,20 @@ export default function Preview({ navigate, resumeData }: Props) {
       <div className="max-w-[210mm] mx-auto">
         {/* Page 1 */}
         <motion.div
-          className="resume-page"
+          className="resume-page relative"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          {/* Watermark for Free plan */}
+          {isFree && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
+                PULUM-PULUM
+              </div>
+            </div>
+          )}
+
           {/* Header */}
           <div style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
             <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
@@ -111,11 +140,20 @@ export default function Preview({ navigate, resumeData }: Props) {
 
         {/* Page 2 */}
         <motion.div
-          className="resume-page"
+          className="resume-page relative"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
+          {/* Watermark for Free plan */}
+          {isFree && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
+                PULUM-PULUM
+              </div>
+            </div>
+          )}
+
           {/* Education */}
           <section style={{ marginBottom: '24px' }}>
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -169,43 +207,63 @@ export default function Preview({ navigate, resumeData }: Props) {
             </div>
           </section>
 
-          {/* Cover letter section */}
-          <section style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px solid #e5e5e5` }}>
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Сопроводительное письмо
-            </h2>
-            <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.7' }}>
-              <p>Уважаемый Hiring Manager,</p>
-              <p style={{ marginTop: '8px' }}>
-                Меня заинтересовала вакансия {personal.position.toLowerCase()} в вашей компании. 
-                Мой опыт разработки высоконагруженных веб-приложений и руководства командой 
-                позволяет мне уверенно решать сложные технические задачи и приносить пользу бизнесу.
-              </p>
-              <p style={{ marginTop: '8px' }}>
-                Буду рад обсудить, как мой опыт может быть полезен вашей команде. 
-                Спасибо за уделённое время!
-              </p>
-              <p style={{ marginTop: '12px' }}>
-                С уважением,<br />
-                {personal.fullName}
-              </p>
-            </div>
-          </section>
+          {/* Cover letter section (only for Pro+ and Premium) */}
+          {(plan === 'pro_plus' || plan === 'premium') && (
+            <section style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px solid #e5e5e5` }}>
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Сопроводительное письмо
+              </h2>
+              <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.7' }}>
+                <p>Уважаемый Hiring Manager,</p>
+                <p style={{ marginTop: '8px' }}>
+                  Меня заинтересовала вакансия {personal.position.toLowerCase()} в вашей компании. 
+                  Мой опыт разработки высоконагруженных веб-приложений и руководства командой 
+                  позволяет мне уверенно решать сложные технические задачи и приносить пользу бизнесу.
+                </p>
+                <p style={{ marginTop: '8px' }}>
+                  Буду рад обсудить, как мой опыт может быть полезен вашей команде. 
+                  Спасибо за уделённое время!
+                </p>
+                <p style={{ marginTop: '12px' }}>
+                  С уважением,<br />
+                  {personal.fullName}
+                </p>
+              </div>
+            </section>
+          )}
         </motion.div>
       </div>
 
       {/* Bottom actions */}
       <div className="max-w-[210mm] mx-auto mt-8 mb-12">
         <div className="glass rounded-2xl p-6 text-center">
-          <p className="text-muted mb-4">Вас устраивает результат?</p>
-          <div className="flex justify-center gap-4">
-            <button className="btn-secondary" onClick={() => navigate('survey')}>
-              ✏️ Редактировать
-            </button>
-            <button className="btn-primary" onClick={() => window.print()}>
-              📥 Скачать PDF
-            </button>
-          </div>
+          {isFree ? (
+            <>
+              <p className="text-muted mb-4">
+                ⚠️ Это резюме создано с вотермаркой PULUM-PULUM
+              </p>
+              <div className="flex justify-center gap-4 flex-wrap">
+                <button className="btn-secondary" onClick={() => navigate('survey')}>
+                  ✏️ Обновить до Pro
+                </button>
+                <button className="btn-primary" onClick={() => window.print()}>
+                  📥 Скачать с вотермаркой
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-muted mb-4">Вас устраивает результат?</p>
+              <div className="flex justify-center gap-4 flex-wrap">
+                <button className="btn-secondary" onClick={() => navigate('survey')}>
+                  ✏️ Редактировать
+                </button>
+                <button className="btn-primary" onClick={() => window.print()}>
+                  📥 Скачать PDF
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
