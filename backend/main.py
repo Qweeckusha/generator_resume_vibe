@@ -72,20 +72,36 @@ async def generate_resume_endpoint(survey: SurveyRequest):
     отправляет в Ollama, получает структурированное резюме.
     """
     try:
+        print("\n" + "="*50)
+        print("🚀 Получен запрос на генерацию резюме")
+        print("="*50)
+        
         # Формируем промпт из данных анкеты
         prompt = build_prompt(survey)
+        print(f"✅ Промпт сформирован (длина: {len(prompt)} символов)")
         
         # Вызываем Ollama для генерации
+        print("🤖 Отправляю запрос в Ollama...")
         raw_response = await generate_resume(prompt)
+        print(f"✅ Получен ответ от Ollama (длина: {len(raw_response)} символов)")
+        print(f"\n📝 Сырой ответ модели:\n{raw_response[:500]}...")
         
         # Парсим JSON из ответа модели
+        print("\n🔍 Парсю JSON из ответа...")
         resume_data = parse_model_response(raw_response, survey)
+        print("✅ JSON успешно распарсен")
+        print("="*50 + "\n")
         
         return resume_data
         
     except json.JSONDecodeError as e:
+        print(f"\n❌ Ошибка парсинга JSON: {str(e)}")
+        print(f"Сырой ответ: {raw_response if 'raw_response' in locals() else 'N/A'}")
         raise HTTPException(status_code=500, detail=f"Ошибка парсинга ответа модели: {str(e)}")
     except Exception as e:
+        print(f"\n❌ Ошибка генерации: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Ошибка генерации: {str(e)}")
 
 
@@ -164,20 +180,53 @@ def build_prompt(survey: SurveyRequest) -> str:
 
 def parse_model_response(raw: str, survey: SurveyRequest) -> dict:
     """Парсит ответ модели в структурированный формат"""
+    print("🔍 Начинаю парсинг ответа модели...")
+    
     # Пытаемся извлечь JSON из ответа
     # Модель может обернуть JSON в markdown-блок
     cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        # Убираем markdown-обёртку
-        lines = cleaned.split("\n")
-        lines = [l for l in lines if not l.startswith("```")]
-        cleaned = "\n".join(lines)
     
-    data = json.loads(cleaned)
+    # Ищем JSON в ответе (может быть обёрнут в markdown)
+    if "```json" in cleaned:
+        print("📦 Найден markdown-блок с JSON")
+        start = cleaned.find("```json") + 7
+        end = cleaned.find("```", start)
+        if end != -1:
+            cleaned = cleaned[start:end].strip()
+    elif "```" in cleaned:
+        print("📦 Найден markdown-блок")
+        start = cleaned.find("```") + 3
+        end = cleaned.find("```", start)
+        if end != -1:
+            cleaned = cleaned[start:end].strip()
+    
+    # Ищем JSON по скобкам
+    if not cleaned.startswith("{"):
+        print("🔎 Ищу JSON по скобкам...")
+        start = cleaned.find("{")
+        end = cleaned.rfind("}") + 1
+        if start != -1 and end > start:
+            cleaned = cleaned[start:end]
+            print(f"✅ JSON извлечён (длина: {len(cleaned)} символов)")
+        else:
+            print("❌ JSON не найден в ответе")
+            raise json.JSONDecodeError("JSON not found in response", cleaned, 0)
+    
+    print(f"📝 Очищенный JSON:\n{cleaned[:300]}...")
+    
+    try:
+        data = json.loads(cleaned)
+        print("✅ JSON успешно распарсен")
+    except json.JSONDecodeError as e:
+        print(f"❌ Ошибка парсинга JSON: {e}")
+        print(f"Проблемная позиция: {e.pos}")
+        print(f"Контекст: ...{cleaned[max(0, e.pos-50):e.pos+50]}...")
+        raise
     
     # Добавляем шаблон из запроса
     data["template"] = survey.template
     
+    print("✅ Парсинг завершён успешно")
     return data
 
 
