@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    image: resumeai-app
+    container_name: resumeai
+    ports:
+      - "3000:3000"   # фронтенд -> http://localhost:3000
+      - "8000:8000"   # бэкенд   -> http://localhost:8000
+    environment:
+      # Хост-машина с Ollama изнутри контейнера (работает на Linux, Docker Desktop и т.д.)
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+      OLLAMA_MODEL: "qwen3.5:4b"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # резолв хоста на Linux без Docker Desktop
+    restart: unless-stopped
