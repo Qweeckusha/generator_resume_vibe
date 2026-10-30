@@ -162,6 +162,50 @@ html.light .glow-pulse {
   line-height: 1.5;
 }
 
+/* Prevent page breaks inside sections */
+.resume-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+/* Prevent orphan headers */
+.resume-section h2 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+/* Watermark background for Free plan */
+.watermark-bg {
+  background-image: repeating-linear-gradient(
+    -30deg,
+    transparent,
+    transparent 100px,
+    rgba(124, 58, 237, 0.03) 100px,
+    rgba(124, 58, 237, 0.03) 200px
+  );
+  position: relative;
+}
+
+.watermark-bg::before {
+  content: 'PULUM-PULUM';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 80pt;
+  font-weight: bold;
+  color: rgba(124, 58, 237, 0.08);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.watermark-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* Loading spinner */
 .spinner {
   width: 60px;

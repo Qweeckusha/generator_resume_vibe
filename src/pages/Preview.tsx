@@ -49,26 +49,16 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     const element = document.getElementById('resume-content');
     if (!element) return;
 
-    // Клонируем элемент для PDF, чтобы убрать лишние отступы
-    const clone = element.cloneNode(true) as HTMLElement;
-    
-    // Убираем min-height у страниц и margin между ними
-    const pages = clone.querySelectorAll('.resume-page');
-    pages.forEach((page: Element) => {
-      (page as HTMLElement).style.minHeight = 'auto';
-      (page as HTMLElement).style.marginBottom = '0';
-    });
-
     const opt = {
-      margin: [15, 15, 15, 15], // Увеличиваем margin со всех сторон [top, left, bottom, right]
+      margin: [15, 15, 15, 15],
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, // Фиксированная ширина A4 в px
+      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(clone).save();
+    html2pdf().set(opt).from(element).save();
   };
 
   return (
@@ -115,25 +105,15 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
       {/* Resume Pages */}
       <div className="max-w-[210mm] mx-auto">
-        <div id="resume-content">
-        {/* Page 1 */}
         <motion.div
-          className="resume-page relative"
+          id="resume-content"
+          className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          {/* Watermark for Free plan */}
-          {isFree && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
-                PULUM-PULUM
-              </div>
-            </div>
-          )}
-
           {/* Header */}
-          <div style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
+          <div className="resume-section" style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
             <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
               {personal.fullName}
             </h1>
@@ -147,18 +127,20 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </div>
           </div>
 
-          {/* Summary */}
-          <section style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Профессиональное резюме
-            </h2>
-            <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
-              {summary}
-            </p>
-          </section>
+          {/* Profile (Summary) */}
+          {summary && (
+            <section className="resume-section">
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Профиль
+              </h2>
+              <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
+                {summary}
+              </p>
+            </section>
+          )}
 
           {/* Experience */}
-          <section style={{ marginBottom: '24px' }}>
+          <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Опыт работы
             </h2>
@@ -181,26 +163,9 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
               </div>
             ))}
           </section>
-        </motion.div>
-
-        {/* Page 2 */}
-        <motion.div
-          className="resume-page relative"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {/* Watermark for Free plan */}
-          {isFree && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
-                PULUM-PULUM
-              </div>
-            </div>
-          )}
 
           {/* Education */}
-          <section style={{ marginBottom: '24px' }}>
+          <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Образование
             </h2>
@@ -216,7 +181,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           </section>
 
           {/* Skills */}
-          <section style={{ marginBottom: '24px' }}>
+          <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Ключевые навыки
             </h2>
@@ -360,7 +325,6 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
-        </div>
       </div>
 
       {/* Bottom actions */}
