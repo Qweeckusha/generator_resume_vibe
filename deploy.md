@@ -4,29 +4,28 @@
 
 ---
 
-## 📋 Требования
+## Требования
 
 - **Python 3.10+**
 - **Node.js 18+** и npm
-- **Ollama** (уже установлена ✅)
-- **PyCharm** (Professional или Community)
+- **Ollama server** 
+- **PyCharm**
 
 ---
 
-## 🚀 Пошаговая инструкция
+## Пошаговая инструкция
 
 ### Шаг 1: Клонирование репозитория
 
 ```bash
-git clone <your-repo-url>
-cd pulum-pulum
+git clone https://github.com/Qweeckusha/generator_resume_vibe
 ```
 
 Или откройте существующую папку проекта в PyCharm: **File → Open → выберите папку проекта**
 
 ---
 
-## 🎨 Фронтенд (React + Vite)
+## Фронтенд (React + Vite)
 
 ### Установка зависимостей
 
@@ -73,7 +72,7 @@ ollama pull qwen3:8b
 ollama list
 ```
 
-Убедитесь, что `qwen3:8b` есть в списке.
+Убедитесь, что `qwen3:8b` есть в списке. Это основная модель
 
 ### Шаг 3: Открытие бэкенда в PyCharm
 
