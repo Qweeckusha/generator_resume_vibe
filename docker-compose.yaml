@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build: .
+    container_name: pulum-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src          # hot-reload исходников
+      - ./index.html:/app/index.html
+    environment:
+      - VITE_BACKEND_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    container_name: pulum-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app           # hot-reload кода бэкенда
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
