@@ -225,6 +225,10 @@ html.light .glow-pulse {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .btn-primary:hover {
   transform: translateY(-2px);
@@ -244,6 +248,10 @@ html.light .glow-pulse {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .btn-secondary:hover {
   background: rgba(124, 58, 237, 0.25);
