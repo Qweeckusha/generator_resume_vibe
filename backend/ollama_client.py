@@ -7,8 +7,8 @@ import httpx
 
 # Конфигурация
 OLLAMA_BASE_URL = "http://localhost:11434"
-MODEL_NAME = "qwen3:8b"
-REQUEST_TIMEOUT = 120.0  # 2 минуты на генерацию
+MODEL_NAME = "qwen3.5:4b"
+REQUEST_TIMEOUT = 180.0  # 2 минуты на генерацию
 
 
 async def check_ollama() -> bool:
@@ -37,7 +37,7 @@ async def generate_resume(prompt: str) -> str:
             "options": {
                 "temperature": 0.7,
                 "top_p": 0.9,
-                "num_predict": 2048,  # Максимальная длина ответа
+                "num_predict": 4096,  # Максимальная длина ответа
             }
         }
         
