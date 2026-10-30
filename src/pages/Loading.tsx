@@ -8,78 +8,109 @@ interface Props {
   setResumeData: (d: any) => void;
 }
 
+// URL бэкенда (изменить при деплое)
+const API_URL = 'http://localhost:8000';
+
 export default function Loading({ navigate, surveyData, setResumeData }: Props) {
   useEffect(() => {
     const generate = async () => {
-      await new Promise((r) => setTimeout(r, 4000));
+      try {
+        // Попытка вызвать реальный бэкенд
+        const response = await fetch(`${API_URL}/api/generate-resume`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: surveyData?.fullName || '',
+            email: surveyData?.email || '',
+            phone: surveyData?.phone || '',
+            city: surveyData?.city || '',
+            position: surveyData?.position || '',
+            experience: surveyData?.experience || '',
+            education: surveyData?.education || '',
+            skills: surveyData?.skills || '',
+            about: surveyData?.about || '',
+            template: surveyData?.template || 'modern',
+          }),
+        });
 
-      const resumeData = {
-        personal: {
-          fullName: surveyData?.fullName || 'Иванов Иван Иванович',
-          email: surveyData?.email || 'ivan@example.com',
-          phone: surveyData?.phone || '+7 (999) 123-45-67',
-          city: surveyData?.city || 'Москва',
-          position: surveyData?.position || 'Frontend-разработчик',
-          github: surveyData?.github || '',
-          linkedin: surveyData?.linkedin || '',
-          languages: surveyData?.languages || '',
-        },
-        summary:
-          'Опытный frontend-разработчик с 3+ годами коммерческого опыта. Специализируюсь на создании высоконагруженных SPA-приложений с использованием React и TypeScript. Имею успешный опыт руководства командой из 5 разработчиков и внедрения лучших практик разработки.',
-        experience: [
-          {
-            company: 'ООО "Технолоджи"',
-            position: 'Senior Frontend-разработчик',
-            period: 'Январь 2022 — настоящее время',
-            achievements: [
-              'Разработал SPA-приложение на React с нуля, обслуживающее 50 000+ пользователей',
-              'Оптимизировал производительность: увеличение скорости загрузки на 40%',
-              'Внедрил CI/CD pipeline, сократив время деплоя с 30 до 5 минут',
-              'Менторил 3 junior-разработчиков, 2 из которых повышены до middle',
-            ],
-          },
-          {
-            company: 'Веб-Студия "Креатив"',
-            position: 'Frontend-разработчик',
-            period: 'Июнь 2020 — Декабрь 2021',
-            achievements: [
-              'Создал 15+ адаптивных сайтов для клиентов из различных отраслей',
-              'Разработал переиспользуемую библиотеку компонентов, ускорив разработку на 30%',
-              'Интегрировал REST API и реализовал сложную бизнес-логику на клиенте',
-            ],
-          },
-        ],
-        education: [
-          {
-            institution: 'МГУ им. М.В. Ломоносова',
-            degree: 'Бакалавр, Прикладная математика и информатика',
-            period: '2018 — 2022',
-          },
-          {
-            institution: 'Яндекс.Практикум',
-            degree: 'Веб-разработчик',
-            period: '2022',
-          },
-        ],
-        skills: [
-          'React',
-          'TypeScript',
-          'Next.js',
-          'Node.js',
-          'PostgreSQL',
-          'Docker',
-          'Git',
-          'Figma',
-          'Agile/Scrum',
-          'REST API',
-          'GraphQL',
-          'Redux',
-        ],
-        template: surveyData?.template || 'modern',
-      };
+        if (!response.ok) {
+          throw new Error(`Backend error: ${response.status}`);
+        }
 
-      setResumeData(resumeData);
-      navigate('preview');
+        const data = await response.json();
+        setResumeData(data);
+        navigate('preview');
+      } catch (error) {
+        console.warn('Backend unavailable, using mock data:', error);
+        
+        // Fallback на мок-данные если бэкенд недоступен
+        const mockResumeData = {
+          personal: {
+            fullName: surveyData?.fullName || 'Иванов Иван Иванович',
+            email: surveyData?.email || 'ivan@example.com',
+            phone: surveyData?.phone || '+7 (999) 123-45-67',
+            city: surveyData?.city || 'Москва',
+            position: surveyData?.position || 'Frontend-разработчик',
+          },
+          summary:
+            'Опытный frontend-разработчик с 3+ годами коммерческого опыта. Специализируюсь на создании высоконагруженных SPA-приложений с использованием React и TypeScript. Имею успешный опыт руководства командой из 5 разработчиков и внедрения лучших практик разработки.',
+          experience: [
+            {
+              company: 'ООО "Технолоджи"',
+              position: 'Senior Frontend-разработчик',
+              period: 'Январь 2022 — настоящее время',
+              achievements: [
+                'Разработал SPA-приложение на React с нуля, обслуживающее 50 000+ пользователей',
+                'Оптимизировал производительность: увеличение скорости загрузки на 40%',
+                'Внедрил CI/CD pipeline, сократив время деплоя с 30 до 5 минут',
+                'Менторил 3 junior-разработчиков, 2 из которых повышены до middle',
+              ],
+            },
+            {
+              company: 'Веб-Студия "Креатив"',
+              position: 'Frontend-разработчик',
+              period: 'Июнь 2020 — Декабрь 2021',
+              achievements: [
+                'Создал 15+ адаптивных сайтов для клиентов из различных отраслей',
+                'Разработал переиспользуемую библиотеку компонентов, ускорив разработку на 30%',
+                'Интегрировал REST API и реализовал сложную бизнес-логику на клиенте',
+              ],
+            },
+          ],
+          education: [
+            {
+              institution: 'МГУ им. М.В. Ломоносова',
+              degree: 'Бакалавр, Прикладная математика и информатика',
+              period: '2018 — 2022',
+            },
+            {
+              institution: 'Яндекс.Практикум',
+              degree: 'Веб-разработчик',
+              period: '2022',
+            },
+          ],
+          skills: [
+            'React',
+            'TypeScript',
+            'Next.js',
+            'Node.js',
+            'PostgreSQL',
+            'Docker',
+            'Git',
+            'Figma',
+            'Agile/Scrum',
+            'REST API',
+            'GraphQL',
+            'Redux',
+          ],
+          template: surveyData?.template || 'modern',
+        };
+
+        // Имитация задержки генерации для UX
+        await new Promise((r) => setTimeout(r, 3000));
+        setResumeData(mockResumeData);
+        navigate('preview');
+      }
     };
 
     generate();
