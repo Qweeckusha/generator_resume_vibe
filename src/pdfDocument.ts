@@ -48,7 +48,11 @@ export function writePrintData(data: PrintData): void {
 export function readPrintData(): PrintData | null {
   try {
     const raw = sessionStorage.getItem(PRINT_DATA_KEY);
-    return raw ? (JSON.parse(raw) as PrintData) : null;
+    if (!raw) return null;
+    // Данные одноразовые: удаляем сразу после чтения, чтобы повторная
+    // загрузка /print.html (или случайный Ctrl+P) не напечатала прошлое резюме.
+    sessionStorage.removeItem(PRINT_DATA_KEY);
+    return JSON.parse(raw) as PrintData;
   } catch (e) {
     console.warn('Не удалось прочитать данные для печати:', e);
     return null;
