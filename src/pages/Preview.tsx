@@ -45,36 +45,46 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
   const telegramUrl = surveyData?.telegram ? `https://t.me/${normalizeUsername(surveyData.telegram)}` : '';
   const websiteUrl = surveyData?.website || '';
 
-  const downloadPDF = () => {
-    const element = document.getElementById('resume-content');
-    if (!element) return;
+  const downloadPDF = async () => {
+    const pages = document.querySelectorAll('.resume-page');
+    if (pages.length === 0) return;
 
-    // Клонируем элемент для PDF
-    const clone = element.cloneNode(true) as HTMLElement;
-    
-    // Убираем вотермарку из клона (она мешает рендерингу)
-    const watermarks = clone.querySelectorAll('.watermark-bg');
-    watermarks.forEach(w => w.classList.remove('watermark-bg'));
+    const pdf = new (window as any).jspdf.jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    });
 
-    const opt = {
-      margin: 0,
-      filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true, 
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      
+      // Клонируем страницу для рендеринга
+      const clone = page.cloneNode(true) as HTMLElement;
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      document.body.appendChild(clone);
+
+      const canvas = await (window as any).html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
         logging: false,
-        windowWidth: 794
-      },
-      jsPDF: { 
-        unit: 'mm', 
-        format: 'a4', 
-        orientation: 'portrait' 
-      },
-      pagebreak: { mode: ['css', 'legacy'] }
-    };
+        width: 794,
+        height: 1123
+      });
 
-    html2pdf().set(opt).from(clone).save();
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      
+      if (i > 0) {
+        pdf.addPage();
+      }
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      
+      document.body.removeChild(clone);
+    }
+
+    pdf.save(`resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
@@ -121,7 +131,6 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
       {/* Resume Pages */}
       <div className="max-w-[794px] mx-auto">
-        <div id="resume-content">
           {/* Page 1 */}
           <motion.div
             className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
@@ -350,7 +359,6 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
-        </div>
       </div>
 
       {/* Bottom actions */}

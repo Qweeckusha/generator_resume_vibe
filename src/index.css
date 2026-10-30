@@ -151,7 +151,7 @@ html.light .glow-pulse {
 /* Page styles for resume preview */
 .resume-page {
   width: 794px; /* A4 width at 96 DPI */
-  height: 1123px; /* A4 height at 96 DPI */
+  min-height: 1123px; /* Minimum A4 height at 96 DPI */
   background: white;
   color: #1a1a2e;
   padding: 75px; /* ~20mm converted to pixels */
@@ -161,7 +161,6 @@ html.light .glow-pulse {
   font-size: 11pt;
   line-height: 1.5;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* Prevent page breaks inside sections */
@@ -187,34 +186,18 @@ html.light .glow-pulse {
 
 /* Watermark background for Free plan */
 .watermark-bg {
-  background-image: repeating-linear-gradient(
-    -30deg,
-    transparent,
-    transparent 100px,
-    rgba(124, 58, 237, 0.03) 100px,
-    rgba(124, 58, 237, 0.03) 200px
-  );
-  position: relative;
-  overflow: hidden;
-}
-
-.watermark-bg::before {
-  content: 'PULUM-PULUM';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  font-size: 80pt;
-  font-weight: bold;
-  color: rgba(124, 58, 237, 0.08);
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 1;
-}
-
-.watermark-bg > * {
-  position: relative;
-  z-index: 2;
+  background-image: 
+    repeating-linear-gradient(
+      -30deg,
+      transparent,
+      transparent 100px,
+      rgba(124, 58, 237, 0.03) 100px,
+      rgba(124, 58, 237, 0.03) 200px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Ctext x='200' y='100' font-family='Arial' font-size='48' font-weight='bold' fill='rgba(124,58,237,0.08)' text-anchor='middle' dominant-baseline='middle' transform='rotate(-30 200 100)'%3EPULUM-PULUM%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat, repeat;
+  background-size: auto, 400px 200px;
+  background-position: center, center;
 }
 
 /* Loading spinner */
