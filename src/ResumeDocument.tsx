@@ -1,10 +1,14 @@
 /**
- * ResumeDocument.tsx — обёртка печатного документа (для print.html).
+ * ResumeDocument.tsx — печатный документ (лента .print-root).
  *
  * Разметка резюме живёт в ResumeContent.tsx и используется И веб-предпросмотром,
  * И печатью. Здесь остаётся только то, что нужно исключительно при печати:
- * контейнер .resume-page (A4) и вотермарка Free-тарифа (в вебе её рисует
- * CSS-класс .watermark-bg из src/index.css).
+ *  • один непрерывный контейнер шириной ровно в лист A4 (весь контент сразу),
+ *    поэтому Chromium переносит его по страницам сам и пустые листы не
+ *    появляются (ср. прежний вариант: два жёстких листа + break-after: page);
+ *  • внутренние поля = те же 75 px, что у карточек предпросмотра (см.
+ *    --resume-pad-mm в src/index.css), поэтому контент не «отъезжает» от края;
+ *  • вотермарка Free-тарифа (в вебе её рисует CSS-класс .watermark-bg).
  *
  * PDF создаётся движком Chromium через системный диалог печати (вариант A),
  * поэтому центрирование текста в плавках навыков и кнопках-ссылках совпадает
@@ -34,8 +38,15 @@ export default function ResumeDocument({ data }: Props) {
   }
 
   return (
-    <div className="resume-page" style={data.watermark ? WATERMARK_STYLE : undefined}>
-      <ResumeContent data={data} page="all" />
+    <div className={`print-root${data.watermark ? ' watermarked' : ''}`} style={data.watermark ? WATERMARK_STYLE : undefined}>
+      {/* Страницы предпросмотра здесь — просто смысловые блоки ленты:
+          их размеры и отступы листов обнуляются в @media print. */}
+      <div className="resume-page">
+        <ResumeContent data={data} page="first" />
+      </div>
+      <div className="resume-page">
+        <ResumeContent data={data} page="second" />
+      </div>
     </div>
   );
 }

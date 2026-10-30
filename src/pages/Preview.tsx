@@ -6,16 +6,22 @@
  * по-своему измеряет шрифты и переносит строки, поэтому идеальная веб-вёрстка
  * при выгрузке в PDF неизбежно разъезжалась.
  *
- * Теперь кнопка «Скачать PDF» открывает печатный документ (print.html), который
- * рендерит ТУ ЖЕ саму разметку (ResumeContent) тем же Chromium и вызывает
- * системный диалог печати — там достаточно выбрать «Сохранить как PDF».
- * Вёрстка PDF совпадает с предпросмотром пиксель в пиксель по построению.
+ * Кнопка «Скачать PDF» вызывает системный диалог печати этой же страницы:
+ * тот же Chromium и та же разметка ResumeContent, поэтому вёрстка PDF
+ * совпадает с предпросмотром один-в-один.
+ *
+ * Две роли разметки (см. src/index.css, @media print):
+ *  • .screen-sheets — карточки A4, которые видит пользователь на сайте;
+ *  • .print-root    — ОДНА непрерывная лента (ResumeDocument), которая
+ *    уходит в PDF. Chromium сам переносит её по страницам, поэтому пустые
+ *    листы между «страницами предпросмотра» больше не появляются.
  */
 import { motion } from 'framer-motion';
 import type { Page, SurveyData } from '../App';
 import ResumeContent from '../ResumeContent';
+import ResumeDocument from '../ResumeDocument';
 import { buildPrintData } from '../buildPrintData';
-import { writePrintData, openPrintWindow } from '../pdfDocument';
+import { writePrintData } from '../pdfDocument';
 
 interface Props {
   navigate: (p: Page) => void;
@@ -33,15 +39,15 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
   const isFree = plan === 'free';
 
   /**
-   * Скачивание PDF (вариант A): печать через браузер. Вызываем системный
-   * диалог печати прямо на странице предпросмотра — в @media print из
-   * src/index.css скрыт весь интерфейс, а карточки .resume-page печатаются
-   * как отдельные листы A4. Тот же Chromium и та же разметка, что на экране,
-   * поэтому в PDF текст в плавках навыков и кнопках-ссылках стоит ровно там же.
+   * Скачивание PDF (вариант A): печать через браузер. Системный диалог печати
+   * открывается на самой странице предпросмотра; в @media print из src/index.css
+   * скрыт весь интерфейс сайта, а в PDF уходит непрерывная лента .print-root
+   * (ResumeDocument). Тот же Chromium и та же разметка ResumeContent, что на
+   * экране, поэтому текст в плавках навыков и кнопках-ссылках стоит ровно там же.
    */
   const downloadPDF = () => {
-    // Данные для печати сохраняем на случай отдельного печатного документа
-    // (print.html) — это единый источник данных для обоих путей печати.
+    // Дублируем данные в sessionStorage: печать всегда берёт тот же объект,
+    // что и предпросмотр (страховка от расхождения источников данных).
     writePrintData(printData);
     window.print();
   };
@@ -93,8 +99,13 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
       </div>
 
       {/* Resume Pages — разметка ТО ЖЕ, что в печатном документе (ResumeContent),
-          поэтому PDF из диалога печати совпадает с предпросмотром один-в-один. */}
-      <div className="max-w-[794px] mx-auto">
+          поэтому PDF из диалога печати совпадает с предпросмотром один-в-один.
+
+          screen-sheets — то, что видит пользователь на сайте: две карточки A4.
+          print-root    — то, что уходит в PDF: ОДНА непрерывная лента со всем
+          содержимым. Её переносит по страницам сам Chromium, поэтому пустых
+          листов между «страницами предпросмотра» больше не появляется. */}
+      <div className="max-w-[794px] mx-auto screen-sheets">
           {/* Page 1 */}
           <motion.div
             className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
@@ -114,6 +125,11 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           >
             <ResumeContent data={printData} page="second" />
           </motion.div>
+      </div>
+
+      {/* Печатная версия: видима ТОЛЬКО при печати (@media print) */}
+      <div className="print-only">
+        <ResumeDocument data={printData} />
       </div>
 
       {/* Bottom actions */}

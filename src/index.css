@@ -164,42 +164,119 @@ html.light .glow-pulse {
 }
 
 /* ===== ПЕЧАТЬ (вариант A: PDF через диалог печати Chromium) =====
-   При печати скрываем всё интерфейсное «обвес» сайта (тулбары, кнопки,
-   анимированный фон) и оставляем только сам документ: карточки .resume-page
-   становятся чистыми листами A4 без теней, скруглений и отступов между ними —
-   Chromium переносит каждую такую карточку на отдельную страницу PDF.
-   Разметка внутри карточек — та же компонента ResumeContent, что и на экране,
-   поэтому вёрстка PDF совпадает с предпросмотром один-в-один. */
+   При печати скрываем весь интерфейсный «обвес» сайта (тулбары, кнопки,
+   анимированный фон) и оставляем только сам документ. Разметка внутри
+   карточек — та же компонента ResumeContent, что и на экране, поэтому
+   вёрстка PDF совпадает с предпросмотром один-в-один. */
+/* Масштаб: A4 (210 мм) при 96 DPI = 794 px, значит 1 мм = 794/210 px.
+   Отступы карточек в px и поля @page в mm задаются из одной переменной,
+   поэтому на экране и в PDF контент стоит на одинаковом расстоянии от края. */
+:root {
+  --resume-pad-px: 75px;                                    /* ~20 мм */
+  --resume-pad-mm: calc(75 * 210 / 794);                     /* те же 75 px в мм */
+}
+
+/* Единый контейнер для ПЕЧАТИ (.print-root) — одна длинная «лента» вместо
+   двух жёстких листов A4. Карточки предпросмотра при печати схлопываются в
+   обычные блоки и сливаются в непрерывный поток, который Chromium переносит
+   по страницам САМ (секции не разрываются: break-inside: avoid у
+   .resume-section). Жёсткие листы + break-after: page как раз и рождали
+   пустые страницы между содержательными. */
+.print-only {
+  display: none;
+}
+
 @media print {
+  /* Поля печати = «Нет» (0): рамку A4 обеспечивает сам лист, а внутренние
+     отступы рисует лента. Иначе браузер прибавил бы свои дефолтные поля
+     (~10 мм) к нашим 75 px — отсюда и «отступ в 1/5 страницы». */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
   body {
     background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* body{min-height:100vh} растягивал документ на высоту экрана и
+       добавлял пустые страницы после контента */
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  /* Фон сайта и полноэкранные обёртки не должны растекаться за пределы листов */
+  .animated-bg {
+    background: #ffffff !important;
+    animation: none !important;
+  }
+
+  .animated-bg,
+  .min-h-screen,
+  .h-screen {
+    min-height: 0 !important;
+    height: auto !important;
   }
 
   body * {
     visibility: hidden;
   }
 
-  .resume-page,
-  .resume-page * {
+  .print-root,
+  .print-root * {
     visibility: visible;
   }
 
-  .resume-page {
-    width: 794px;
-    min-height: 1123px;
-    margin: 0;
-    padding: 75px;
+  .print-only {
+    display: block;
+  }
+
+  /* Веб-карточки на печати не нужны: их содержимое дублирует печатная лента,
+     иначе каждый раздел печатался бы дважды. */
+  .screen-sheets {
+    display: none !important;
+  }
+
+  /* Лента = непрерывный документ шириной ровно в лист A4.
+     Никаких break-after/page-break-after: always — лишние разрывы и были
+     источником пустых страниц. */
+  .print-root {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    margin: 0 !important;
+    padding: var(--resume-pad-mm) !important;
+    background: #ffffff !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    break-after: page;
-    page-break-after: always;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .resume-page:last-child {
-    break-after: auto;
-    page-break-after: auto;
+  /* Внутри ленты карточки становятся обычными блоками: без размеров листа,
+     отступов, теней и скруглений. */
+  .print-root .resume-page {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    break-before: auto !important;
+    break-after: auto !important;
+    page-break-before: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* Вотермарка Free-тарифа: в вебе её рисует .watermark-bg на карточке,
+     в ленте фон переносим на контейнер целиком (inline-стиль WATERMARK_STYLE),
+     поэтому здесь лишь фиксируем область рисования внутри полей. */
+  .print-root.watermarked {
+    background-origin: content-box;
+    background-clip: content-box;
   }
 }
 
