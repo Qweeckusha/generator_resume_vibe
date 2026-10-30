@@ -53,20 +53,17 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     const clone = element.cloneNode(true) as HTMLElement;
     
     // Убираем вотермарку из клона (она мешает рендерингу)
-    const watermark = clone.querySelector('.watermark-bg');
-    if (watermark) {
-      watermark.classList.remove('watermark-bg');
-    }
+    const watermarks = clone.querySelectorAll('.watermark-bg');
+    watermarks.forEach(w => w.classList.remove('watermark-bg'));
 
     const opt = {
-      margin: 0, // Убираем внешние margin, padding уже есть в resume-page
+      margin: 0,
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2, 
         useCORS: true, 
         logging: false,
-        width: 794, // A4 width in pixels at 96 DPI
         windowWidth: 794
       },
       jsPDF: { 
@@ -124,105 +121,114 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
       {/* Resume Pages */}
       <div className="max-w-[794px] mx-auto">
-        <motion.div
-          id="resume-content"
-          className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Header */}
-          <div className="resume-section" style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
-            <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
-              {personal.fullName}
-            </h1>
-            <p style={{ fontSize: '14pt', color: '#555', marginTop: '4px' }}>
-              {personal.position}
-            </p>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '10pt', color: '#666' }}>
-              <span>📧 {personal.email}</span>
-              <span>📱 {personal.phone}</span>
-              <span>📍 {personal.city}</span>
-            </div>
-          </div>
-
-          {/* Profile (Summary) */}
-          {summary && (
-            <section className="resume-section">
-              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Профиль
-              </h2>
-              <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
-                {summary}
+        <div id="resume-content">
+          {/* Page 1 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Header */}
+            <div className="resume-section" style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
+              <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
+                {personal.fullName}
+              </h1>
+              <p style={{ fontSize: '14pt', color: '#555', marginTop: '4px' }}>
+                {personal.position}
               </p>
-            </section>
-          )}
-
-          {/* Experience */}
-          <section className="resume-section">
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Опыт работы
-            </h2>
-            {experience.map((exp: any, i: number) => (
-              <div key={i} style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <h3 style={{ fontSize: '12pt', fontWeight: 'bold', margin: 0 }}>{exp.position}</h3>
-                  <span style={{ fontSize: '9pt', color: '#888' }}>{exp.period}</span>
-                </div>
-                <p style={{ fontSize: '10pt', color: '#666', margin: '2px 0 8px 0', fontStyle: 'italic' }}>
-                  {exp.company}
-                </p>
-                <ul style={{ margin: 0, paddingLeft: '18px' }}>
-                  {exp.achievements.map((a: string, j: number) => (
-                    <li key={j} style={{ fontSize: '10.5pt', lineHeight: '1.5', color: '#333', marginBottom: '3px' }}>
-                      {a}
-                    </li>
-                  ))}
-                </ul>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '10pt', color: '#666' }}>
+                <span>📧 {personal.email}</span>
+                <span>📱 {personal.phone}</span>
+                <span>📍 {personal.city}</span>
               </div>
-            ))}
-          </section>
-
-          {/* Education */}
-          <section className="resume-section">
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Образование
-            </h2>
-            {education.map((edu: any, i: number) => (
-              <div key={i} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <h3 style={{ fontSize: '12pt', fontWeight: 'bold', margin: 0 }}>{edu.institution}</h3>
-                  <span style={{ fontSize: '9pt', color: '#888' }}>{edu.period}</span>
-                </div>
-                <p style={{ fontSize: '10.5pt', color: '#555', margin: '2px 0 0 0' }}>{edu.degree}</p>
-              </div>
-            ))}
-          </section>
-
-          {/* Skills */}
-          <section className="resume-section">
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Ключевые навыки
-            </h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {skills.map((skill: string, i: number) => (
-                <span
-                  key={i}
-                  style={{
-                    background: `${accent}15`,
-                    color: accent,
-                    padding: '6px 14px',
-                    borderRadius: '20px',
-                    fontSize: '10pt',
-                    fontWeight: '500',
-                    border: `1px solid ${accent}30`,
-                  }}
-                >
-                  {skill}
-                </span>
-              ))}
             </div>
-          </section>
+
+            {/* Profile (Summary) */}
+            {summary && (
+              <section className="resume-section">
+                <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Профиль
+                </h2>
+                <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
+                  {summary}
+                </p>
+              </section>
+            )}
+
+            {/* Experience */}
+            <section className="resume-section">
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Опыт работы
+              </h2>
+              {experience.map((exp: any, i: number) => (
+                <div key={i} style={{ marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontSize: '12pt', fontWeight: 'bold', margin: 0 }}>{exp.position}</h3>
+                    <span style={{ fontSize: '9pt', color: '#888' }}>{exp.period}</span>
+                  </div>
+                  <p style={{ fontSize: '10pt', color: '#666', margin: '2px 0 8px 0', fontStyle: 'italic' }}>
+                    {exp.company}
+                  </p>
+                  <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                    {exp.achievements.map((a: string, j: number) => (
+                      <li key={j} style={{ fontSize: '10.5pt', lineHeight: '1.5', color: '#333', marginBottom: '3px' }}>
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          </motion.div>
+
+          {/* Page 2 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Education */}
+            <section className="resume-section">
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Образование
+              </h2>
+              {education.map((edu: any, i: number) => (
+                <div key={i} style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontSize: '12pt', fontWeight: 'bold', margin: 0 }}>{edu.institution}</h3>
+                    <span style={{ fontSize: '9pt', color: '#888' }}>{edu.period}</span>
+                  </div>
+                  <p style={{ fontSize: '10.5pt', color: '#555', margin: '2px 0 0 0' }}>{edu.degree}</p>
+                </div>
+              ))}
+            </section>
+
+            {/* Skills */}
+            <section className="resume-section">
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Ключевые навыки
+              </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {skills.map((skill: string, i: number) => (
+                  <span
+                    key={i}
+                    style={{
+                      background: `${accent}15`,
+                      color: accent,
+                      padding: '6px 14px',
+                      borderRadius: '20px',
+                      fontSize: '10pt',
+                      fontWeight: '500',
+                      border: `1px solid ${accent}30`,
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
 
           {/* Additional info */}
           {(surveyData?.github || surveyData?.telegram || surveyData?.website || surveyData?.languages) && (
@@ -344,6 +350,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
+        </div>
       </div>
 
       {/* Bottom actions */}
