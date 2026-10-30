@@ -1,50 +1,92 @@
-/* ============================================================
-   print.css — стили ТОЛЬКО для печати / генерации PDF
-   ------------------------------------------------------------
-   Предпросмотр на экране (html.dark + анимированный фон) остаётся
-   как есть. Этот файл подключается в отдельном печатном документе,
-   где резюме рендерится браузером один-в-один и печатается в PDF
-   движком Chromium (page.pdf). Поэтому текст внутри плавок навыков
-   и кнопок-ссылок стоит ровно там же, где и в предпросмотре:
-   оба используют один и тот же flexbox (align-items/justify-content).
-   ============================================================ */
+/**
+ * print.css — СТИЛИ ТОЛЬКО ДЛЯ ПЕЧАТНОЙ СТРАНИЦЫ (print.html).
+ *
+ * Почему отдельный файл: страница /print.html загружается в скрытом iframe,
+ * из которого вызывается window.print(). В её DOM нет ничего, кроме самого
+ * документа резюме — ни тулбаров, ни анимированного фона, ни полноэкранных
+ * обёрток min-h-screen, ни скрытых дублей разметки. Именно эти обёртки и
+ * дубли в основном окне были причиной двух дефектов PDF:
+ *  • лишний вертикальный offset обёрток складывался с полями документа →
+ *    контент первой страницы отступал сверху примерно на 1/5 листа;
+ *  • скрытый дубль ленты при переходе в печать становился видимым и
+ *    добавлял пустые листы после текстовых страниц.
+ * Здесь же структура документа = высота контента, поэтому разрывы страниц
+ * возникают ровно там, где их задаёт @page и явный маркер .page-break.
+ *
+ * ВАЖНО: визуальные стили resume-блоков живут в src/index.css (классы
+ * .resume-page / .resume-section), они подключаются к print.html отдельно,
+ * чтобы печать и предпросмотр рисовались одними и теми же правилами.
+ */
 
-* {
-  box-sizing: border-box;
+/* A4 без браузерных полей: рамку листа обеспечивает сам принтер/PDF,
+   внутренние отступы рисует .print-root (те же 75 px, что у карточек
+   предпросмотра, ≈ 19.8 мм). */
+@page {
+  size: A4 portrait;
+  margin: 0;
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
-  background: #ffffff;
-  /* Тот же стек шрифтов, что и в веб-предпросмотре (src/index.css),
-     чтобы метрики строк и ширина слов совпадали. */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,
-    'Liberation Sans', sans-serif;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+  /* Никаких 100vh/100% — иначе за контентом появляется пустая страница. */
+  min-height: 0 !important;
+  height: auto !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #1a1a2e;
+}
+
+/* Лента документа: ширина ровно лист A4, поля = экранные 75 px. */
+.print-root {
+  box-sizing: border-box;
+  width: 210mm;
+  max-width: 210mm;
+  margin: 0;
+  padding: 19.8mm; /* 75 px при 96 DPI = те же поля, что у .resume-page на экране */
+  background: #ffffff;
+  color: #1a1a2e;
+  font-size: 11pt;
+  line-height: 1.5;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
-/* A4 при 96 DPI = 794 × 1123 px — те же размеры, что у .resume-page в вебе.
-   В печати это ОДИН непрерывный контейнер: Chromium сам переносит контент по
-   страницам (секции не разрываются благодаря break-inside: avoid ниже).
-   overflow:hidden здесь недопустим — он обрезал бы второй «лист» документа,
-   а width:794px достаточно для совпадения метрик с предпросмотром. */
-.resume-page {
-  width: 794px;
-  min-height: 1123px;
-  background: #ffffff;
-  color: #1a1a2e;
-  padding: 75px;
+/* Внутри ленты смысловые страницы — обычные блоки без «карточных» украшений. */
+.print-root .resume-page {
+  box-sizing: border-box;
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  height: auto;
   margin: 0;
-  font-size: 11pt;
-  line-height: 1.5;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  break-before: auto;
+  break-after: auto;
 }
 
+/* Единственный источник принудительных разрывов: маркер между смысловыми
+   страницами резюме. Ставится вручную (ResumeDocument), поэтому пустых
+   листов не бывает: перед маркером контент сам влезает в лист. */
+.page-break {
+  break-after: page;
+  page-break-after: always;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Секции не разрываются на середине, заголовки не остаются «сиротами». */
 .resume-section {
   break-inside: avoid;
   page-break-inside: avoid;
@@ -55,7 +97,6 @@ body {
   break-after: avoid;
   page-break-after: avoid;
   break-inside: avoid;
-  page-break-inside: avoid;
 }
 
 .resume-section li {
@@ -63,14 +104,11 @@ body {
   page-break-inside: avoid;
 }
 
-/* Иконки SVG внутри кнопок не должны «дышать» по вертикали */
-svg {
-  display: inline-block;
-  vertical-align: middle;
-  flex: 0 0 auto;
+/* Вотермарка Free-тарифа рисуется внутри полей документа (inline-фон из
+   ResumeDocument.WATERMARK_STYLE), здесь только область рисования. */
+.print-root.watermarked {
+  background-origin: content-box;
+  background-clip: content-box;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+

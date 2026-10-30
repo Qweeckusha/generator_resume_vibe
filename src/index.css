@@ -164,42 +164,107 @@ html.light .glow-pulse {
 }
 
 /* ===== ПЕЧАТЬ (вариант A: PDF через диалог печати Chromium) =====
-   При печати скрываем всё интерфейсное «обвес» сайта (тулбары, кнопки,
-   анимированный фон) и оставляем только сам документ: карточки .resume-page
-   становятся чистыми листами A4 без теней, скруглений и отступов между ними —
-   Chromium переносит каждую такую карточку на отдельную страницу PDF.
-   Разметка внутри карточек — та же компонента ResumeContent, что и на экране,
-   поэтому вёрстка PDF совпадает с предпросмотром один-в-один. */
+
+   Архитектура печати (исправляет «отступ в 1/5 страницы сверху» и «пустую
+   страницу после каждой текстовой»):
+
+   РАНЬШЕ печать шла из основного окна: там документ обёрнут в полноэкранные
+   контейнеры (min-h-screen, flex-центрирование, паддинги тулбаров), а рядом
+   лежит скрытый дубль (.print-only → .print-root). Именно эта связка и
+   давала оба дефекта:
+    • лишний вертикальный offset от обёрток Preview складывался с полями
+      ленты → верхний отступ первой страницы ≈ 1/5 листа;
+    • скрытый блок с display:none в основном документе при переходе в print
+      становился видимым и растягивался на всю свою высоту, тогда как
+      карточки уже были скрыты → после текста появлялся пустой лист.
+
+   СЕЙЧАС печать вызывается из ЧИСТого iframe (/print.html), DOM которого
+   содержит ТОЛЬКО сам документ: ни обёрток, ни дублей, ни анимаций.
+   Правила ниже действуют и для основного окна (если пользователь печатает
+   через Ctrl+P), но основной путь — именно iframe. */
+
+/* Единая мера внутренних полей документа: 75 px при 96 DPI ≈ 19.8 мм.
+   В CSS-модуле печати она задана в mm напрямую (см. print.css), здесь —
+   для экранных карточек. */
+
+/* Печатная разметка живёт НЕ в этом окне, а на чистой странице /print.html
+   (src/print.tsx), которую Preview грузит в скрытый iframe. Поэтому в DOM
+   сайта больше нет ни .print-only, ни .print-root: их не нужно ни скрывать,
+   ни «проявлять» при печати — источник пустых листов и лишнего верхнего
+   отступа (скрытый дубль ленты + полноэкранные обёртки) просто исчез. */
+
+/* Класс принудительного разрыва страницы: ставится вручную МЕЖДУ смысловыми
+   страницами резюме (ResumeDocument), чтобы Chromium не резал контент там,
+   где не надо. Полные правила — в src/print.css; здесь дублируем их, чтобы
+   печать основного окна (Ctrl+P, запасной путь) вела себя так же. */
+.page-break {
+  break-after: page;
+  page-break-after: always;
+  height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
 @media print {
-  body {
-    background: #ffffff !important;
+  /* Поля печати = 0: рамку A4 обеспечивает сам лист, внутренние отступы
+     рисует документ. Иначе браузер прибавил бы свои дефолтные поля (~10 мм)
+     к нашим 75 px — отсюда и «отступ в 1/5 страницы». */
+  @page {
+    size: A4 portrait;
+    margin: 0;
   }
 
-  body * {
+  html,
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* min-height:100vh растягивал документ на высоту экрана и добавлял
+       пустые страницы ПОСЛЕ контента (последняя страница всегда неполная) */
+    min-height: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Фон сайта и полноэкранные обёртки не должны растекаться за пределы листов */
+  .animated-bg {
+    background: #ffffff !important;
+    animation: none !important;
+  }
+
+  .animated-bg,
+  .min-h-screen,
+  .h-screen,
+  .flex,
+  .grid {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Интерфейс сайта (тулбары, кнопки, фон) на печать не уходит: скрыт весь
+     контент кроме карточек резюме, которые печатаются как есть. */
+  body :not(.screen-sheets):not(.screen-sheets *) {
     visibility: hidden;
   }
 
-  .resume-page,
-  .resume-page * {
-    visibility: visible;
+  /* Карточки предпросмотра = тот же ResumeContent, что и в PDF из iframe,
+     поэтому Ctrl+P с сайта даёт ту же вёрстку (запасной путь). */
+  .screen-sheets {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .resume-page {
-    width: 794px;
-    min-height: 1123px;
-    margin: 0;
-    padding: 75px;
     box-shadow: none !important;
     border-radius: 0 !important;
-    break-after: page;
-    page-break-after: always;
+    margin: 0 auto !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-
-  .resume-page:last-child {
-    break-after: auto;
-    page-break-after: auto;
   }
 }
 

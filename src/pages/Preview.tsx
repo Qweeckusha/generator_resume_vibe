@@ -6,16 +6,22 @@
  * по-своему измеряет шрифты и переносит строки, поэтому идеальная веб-вёрстка
  * при выгрузке в PDF неизбежно разъезжалась.
  *
- * Теперь кнопка «Скачать PDF» открывает печатный документ (print.html), который
- * рендерит ТУ ЖЕ саму разметку (ResumeContent) тем же Chromium и вызывает
- * системный диалог печати — там достаточно выбрать «Сохранить как PDF».
- * Вёрстка PDF совпадает с предпросмотром пиксель в пиксель по построению.
+ * Кнопка «Скачать PDF» открывает системный диалог печати, но НЕ из этого окна:
+ * печать запускается из скрытого iframe с чистой страницей /print.html
+ * (см. src/printBridge.ts). Причина: в DOM сайта есть полноэкранные обёртки
+ * (min-h-screen, паддинги тулбаров) и скрытый дубль печатной разметки —
+ * их высота складывалась с полями документа, давая верхний отступ ≈ 1/5 листа,
+ * а дубль добавлял пустые страницы после текстовых. В iframe печатается только
+ * сам документ, поэтому разрывы страниц ровно там, где задано CSS.
+ *
+ * Разметка одна на оба режима — ResumeContent: тот же Chromium, те же стили,
+ * поэтому PDF совпадает с предпросмотром один-в-один.
  */
 import { motion } from 'framer-motion';
 import type { Page, SurveyData } from '../App';
 import ResumeContent from '../ResumeContent';
 import { buildPrintData } from '../buildPrintData';
-import { writePrintData, openPrintWindow } from '../pdfDocument';
+import { printResume } from '../printBridge';
 
 interface Props {
   navigate: (p: Page) => void;
@@ -32,23 +38,22 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
   const plan = surveyData?.plan || 'pro';
   const isFree = plan === 'free';
 
-  /**
-   * Скачивание PDF (вариант A): печать через браузер. Вызываем системный
-   * диалог печати прямо на странице предпросмотра — в @media print из
-   * src/index.css скрыт весь интерфейс, а карточки .resume-page печатаются
-   * как отдельные листы A4. Тот же Chromium и та же разметка, что на экране,
-   * поэтому в PDF текст в плавках навыков и кнопках-ссылках стоит ровно там же.
-   */
-  const downloadPDF = () => {
-    // Данные для печати сохраняем на случай отдельного печатного документа
-    // (print.html) — это единый источник данных для обоих путей печати.
-    writePrintData(printData);
-    window.print();
-  };
-
   // Единый объект данных для обеих страниц предпросмотра и для печати:
   // предпросмотр и PDF гарантированно получают одни и те же данные.
   const printData = buildPrintData(resumeData, surveyData);
+
+  /**
+   * Скачивание PDF (вариант A): печать через браузер из чистого iframe
+   * /print.html. Диалог печати откроется с содержимым iframe, где лежит ровно
+   * та же разметка ResumeContent, что на экране, — текст в плавках навыков и
+   * кнопках-ссылках стоит там же, без верхнего смещения и пустых листов.
+   * Если браузер не дал напечатать из iframe — запасной путь: печать текущего
+   * окна (для неё в @media print скрыт весь интерфейсный обвес).
+   */
+  const downloadPDF = async () => {
+    const ok = await printResume(printData);
+    if (!ok) window.print();
+  };
 
   return (
     <div className="min-h-screen px-4 py-8">
@@ -93,8 +98,13 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
       </div>
 
       {/* Resume Pages — разметка ТО ЖЕ, что в печатном документе (ResumeContent),
-          поэтому PDF из диалога печати совпадает с предпросмотром один-в-один. */}
-      <div className="max-w-[794px] mx-auto">
+          поэтому PDF из диалога печати совпадает с предпросмотром один-в-один.
+
+          screen-sheets — то, что видит пользователь на сайте: две карточки A4.
+          В PDF уходит печатная страница /print.html (скрытый iframe): там лежит
+          одна лента .print-root со всем содержимым, разрывы в которой задаёт
+          CSS, а не высота экранных карточек. */}
+      <div className="max-w-[794px] mx-auto screen-sheets">
           {/* Page 1 */}
           <motion.div
             className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
