@@ -143,53 +143,6 @@ pip install -r requirements.txt
 
 ---
 
-## 🔗 Связка фронтенда и бэкенда
-
-На данный момент фронтенд работает с мок-данными (имитация AI-генерации). Для подключения к реальному бэкенду:
-
-### В файле `src/pages/Loading.tsx`
-
-Замените блок `useEffect` на реальный API-вызов:
-
-```typescript
-useEffect(() => {
-  const generate = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/api/generate-resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: surveyData?.fullName || '',
-          email: surveyData?.email || '',
-          phone: surveyData?.phone || '',
-          city: surveyData?.city || '',
-          position: surveyData?.position || '',
-          experience: surveyData?.experience || '',
-          education: surveyData?.education || '',
-          skills: surveyData?.skills || '',
-          about: surveyData?.about || '',
-          template: surveyData?.template || 'modern',
-        }),
-      });
-
-      if (!response.ok) throw new Error('Ошибка генерации');
-
-      const data = await response.json();
-      setResumeData(data);
-      navigate('preview');
-    } catch (error) {
-      console.error('Ошибка:', error);
-      // Fallback на мок-данные при ошибке
-      // ... существующий код с мок-данными
-    }
-  };
-
-  generate();
-}, []);
-```
-
----
-
 ## 🧪 Тестирование функционала
 
 ### Чек-лист для тестирования
@@ -386,7 +339,7 @@ services:
 - [ ] Модель qwen3:8b установлена (`ollama list`)
 - [ ] Бэкенд запущен в PyCharm (Run Configuration: FastAPI Backend)
 - [ ] Фронтенд запущен (`npm run dev`)
-- [ ] Фронтенд подключён к бэкенду (изменён Loading.tsx)
+- [ ] Фронтенд автоматически подключается к бэкенду (при недоступности бэкенда используется fallback на мок-данные)
 - [ ] Протестирован полный флоу создания резюме
 - [ ] Проверена генерация PDF (без лишних страниц)
 - [ ] Проверена вотермарка для Free-тарифа
