@@ -26,6 +26,9 @@ async def generate_resume(prompt: str) -> str:
     Отправляет промпт в Ollama и возвращает сгенерированный текст.
     Используется non-streaming режим для простоты.
     """
+    print(f"📡 Отправляю запрос в Ollama ({OLLAMA_BASE_URL})")
+    print(f"🤖 Модель: {MODEL_NAME}")
+    
     async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
         payload = {
             "model": MODEL_NAME,
@@ -38,16 +41,29 @@ async def generate_resume(prompt: str) -> str:
             }
         }
         
-        response = await client.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json=payload
-        )
-        
-        if response.status_code != 200:
-            raise Exception(f"Ollama error: {response.status_code} - {response.text}")
-        
-        data = response.json()
-        return data.get("response", "")
+        try:
+            response = await client.post(
+                f"{OLLAMA_BASE_URL}/api/generate",
+                json=payload
+            )
+            
+            print(f"📥 Статус ответа: {response.status_code}")
+            
+            if response.status_code != 200:
+                print(f"❌ Ошибка Ollama: {response.text}")
+                raise Exception(f"Ollama error: {response.status_code} - {response.text}")
+            
+            data = response.json()
+            response_text = data.get("response", "")
+            print(f"✅ Ответ получен (длина: {len(response_text)} символов)")
+            return response_text
+            
+        except httpx.TimeoutException:
+            print(f"⏱️ Таймаут запроса к Ollama ({REQUEST_TIMEOUT}с)")
+            raise Exception(f"Таймаут запроса к Ollama")
+        except httpx.ConnectError:
+            print(f"❌ Не удалось подключиться к Ollama по адресу {OLLAMA_BASE_URL}")
+            raise Exception(f"Не удалось подключиться к Ollama. Убедитесь, что Ollama запущена (ollama serve)")
 
 
 async def list_models() -> list:
