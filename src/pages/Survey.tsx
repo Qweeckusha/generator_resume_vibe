@@ -15,6 +15,7 @@ const STEPS = [
   { id: 'education', title: 'Образование', icon: '🎓' },
   { id: 'skills', title: 'Навыки', icon: '⚡' },
   { id: 'about', title: 'О себе', icon: '✨' },
+  { id: 'links', title: 'Ссылки', icon: '🔗' },
   { id: 'plan', title: 'Тариф', icon: '💳' },
   { id: 'template', title: 'Шаблон', icon: '🎨' },
 ];
@@ -32,6 +33,9 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       education: '',
       skills: '',
       about: '',
+      github: '',
+      linkedin: '',
+      languages: '',
       template: 'modern',
       plan: 'pro',
     }
@@ -231,6 +235,45 @@ Figma, Jira, Slack, Notion`}
         );
       case 6:
         return (
+          <div className="space-y-4">
+            <p className="text-muted mb-6">
+              Добавь ссылки на свои профили и расскажи о языках — это поможет работодателю узнать тебя лучше.
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">GitHub</label>
+              <input
+                className="input-field"
+                placeholder="https://github.com/username"
+                value={data.github}
+                onChange={(e) => update('github', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">LinkedIn</label>
+              <input
+                className="input-field"
+                placeholder="https://linkedin.com/in/username"
+                value={data.linkedin}
+                onChange={(e) => update('linkedin', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Языки</label>
+              <textarea
+                className="input-field"
+                rows={3}
+                placeholder="Русский — родной&#10;English — B2 (Upper-Intermediate)&#10;Deutsch — A2 (Elementary)"
+                value={data.languages}
+                onChange={(e) => update('languages', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Можешь оставить поля пустыми, если не хочешь делиться этими данными.
+            </p>
+          </div>
+        );
+      case 7:
+        return (
           <div>
             <p className="text-muted mb-6">
               У нас есть несколько вариантов — от бесплатного до премиум. Выбери тот, который подходит именно тебе.
@@ -272,7 +315,7 @@ Figma, Jira, Slack, Notion`}
             </p>
           </div>
         );
-      case 7:
+      case 8:
         return (
           <div>
             <p className="text-muted mb-6">

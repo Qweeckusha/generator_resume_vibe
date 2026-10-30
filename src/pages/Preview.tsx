@@ -33,15 +33,26 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     const element = document.getElementById('resume-content');
     if (!element) return;
 
+    // Клонируем элемент для PDF, чтобы убрать лишние отступы
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Убираем min-height у страниц и margin между ними
+    const pages = clone.querySelectorAll('.resume-page');
+    pages.forEach((page: Element) => {
+      (page as HTMLElement).style.minHeight = 'auto';
+      (page as HTMLElement).style.marginBottom = '0';
+    });
+
     const opt = {
-      margin: 0,
+      margin: 10,
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(clone).save();
   };
 
   return (
@@ -214,16 +225,26 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           </section>
 
           {/* Additional info */}
-          <section style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Дополнительная информация
-            </h2>
-            <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.6' }}>
-              <p><strong>Языки:</strong> Русский (родной), English (B2 — Upper-Intermediate)</p>
-              <p><strong>Портфолио:</strong> github.com/ivanov • linkedin.com/in/ivanov</p>
-              <p><strong>Рекомендации:</strong> Предоставляются по запросу</p>
-            </div>
-          </section>
+          {(surveyData?.github || surveyData?.linkedin || surveyData?.languages) && (
+            <section style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Дополнительная информация
+              </h2>
+              <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.6' }}>
+                {surveyData?.languages && (
+                  <p><strong>Языки:</strong> {surveyData.languages.replace(/\n/g, ', ')}</p>
+                )}
+                {(surveyData?.github || surveyData?.linkedin) && (
+                  <p>
+                    <strong>Профили:</strong>
+                    {surveyData?.github && <> GitHub: <a href={surveyData.github} style={{ color: accent, textDecoration: 'none' }}>{surveyData.github.replace('https://', '')}</a></>}
+                    {surveyData?.github && surveyData?.linkedin && <> • </>}
+                    {surveyData?.linkedin && <> LinkedIn: <a href={surveyData.linkedin} style={{ color: accent, textDecoration: 'none' }}>{surveyData.linkedin.replace('https://', '')}</a></>}
+                  </p>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* Cover letter section (only for Pro+ and Premium) */}
           {(plan === 'pro_plus' || plan === 'premium') && (
