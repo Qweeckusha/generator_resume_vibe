@@ -49,22 +49,41 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     const element = document.getElementById('resume-content');
     if (!element) return;
 
+    // Клонируем элемент для PDF
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Убираем вотермарку из клона (она мешает рендерингу)
+    const watermark = clone.querySelector('.watermark-bg');
+    if (watermark) {
+      watermark.classList.remove('watermark-bg');
+    }
+
     const opt = {
-      margin: [15, 15, 15, 15],
+      margin: 0, // Убираем внешние margin, padding уже есть в resume-page
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        logging: false,
+        width: 794, // A4 width in pixels at 96 DPI
+        windowWidth: 794
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait' 
+      },
       pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(clone).save();
   };
 
   return (
     <div className="min-h-screen px-4 py-8">
       {/* Toolbar */}
-      <div className="max-w-[210mm] mx-auto mb-6">
+      <div className="max-w-[794px] mx-auto mb-6">
         <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-4">
           <button
             onClick={() => navigate('landing')}
@@ -104,7 +123,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
       </div>
 
       {/* Resume Pages */}
-      <div className="max-w-[210mm] mx-auto">
+      <div className="max-w-[794px] mx-auto">
         <motion.div
           id="resume-content"
           className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
@@ -328,7 +347,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
       </div>
 
       {/* Bottom actions */}
-      <div className="max-w-[210mm] mx-auto mt-8 mb-12">
+      <div className="max-w-[794px] mx-auto mt-8 mb-12">
         <div className="glass rounded-2xl p-6 text-center">
           {isFree ? (
             <>
