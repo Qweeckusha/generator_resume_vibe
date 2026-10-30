@@ -49,6 +49,13 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     const element = document.getElementById('resume-content');
     if (!element) return;
 
+    // Клонируем элемент для PDF
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Убираем вотермарку из клона (она мешает рендерингу)
+    const watermarks = clone.querySelectorAll('.watermark-bg');
+    watermarks.forEach(w => w.classList.remove('watermark-bg'));
+
     const opt = {
       margin: 0,
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
@@ -64,15 +71,10 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
         format: 'a4', 
         orientation: 'portrait' 
       },
-      pagebreak: { 
-        mode: ['css', 'legacy'],
-        before: '.page-break-before',
-        after: '.page-break-after',
-        avoid: '.resume-section'
-      }
+      pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(clone).save();
   };
 
   return (
@@ -119,13 +121,14 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
       {/* Resume Pages */}
       <div className="max-w-[794px] mx-auto">
-        <motion.div
-          id="resume-content"
-          className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div id="resume-content">
+          {/* Page 1 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
           {/* Header */}
           <div className="resume-section" style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
             <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
@@ -177,9 +180,17 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
               </div>
             ))}
           </section>
+          </motion.div>
 
-          {/* Education */}
-          <section className="resume-section">
+          {/* Page 2 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Education */}
+            <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Образование
             </h2>
@@ -339,6 +350,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
+        </div>
       </div>
 
       {/* Bottom actions */}
