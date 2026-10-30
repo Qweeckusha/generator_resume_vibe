@@ -163,6 +163,46 @@ html.light .glow-pulse {
   box-sizing: border-box;
 }
 
+/* ===== ПЕЧАТЬ (вариант A: PDF через диалог печати Chromium) =====
+   При печати скрываем всё интерфейсное «обвес» сайта (тулбары, кнопки,
+   анимированный фон) и оставляем только сам документ: карточки .resume-page
+   становятся чистыми листами A4 без теней, скруглений и отступов между ними —
+   Chromium переносит каждую такую карточку на отдельную страницу PDF.
+   Разметка внутри карточек — та же компонента ResumeContent, что и на экране,
+   поэтому вёрстка PDF совпадает с предпросмотром один-в-один. */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .resume-page,
+  .resume-page * {
+    visibility: visible;
+  }
+
+  .resume-page {
+    width: 794px;
+    min-height: 1123px;
+    margin: 0;
+    padding: 75px;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    break-after: page;
+    page-break-after: always;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .resume-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
+
 /* Prevent page breaks inside sections */
 .resume-section {
   break-inside: avoid;
