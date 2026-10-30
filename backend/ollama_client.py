@@ -4,9 +4,6 @@ Ollama Client — взаимодействие с локальной LLM
 """
 
 import httpx
-import json
-import asyncio
-from typing import Optional
 
 # Конфигурация
 OLLAMA_BASE_URL = "http://localhost:11434"

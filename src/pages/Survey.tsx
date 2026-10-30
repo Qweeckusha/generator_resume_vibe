@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Page, SurveyData, Plan } from '../App';
+import type { Page, SurveyData } from '../App';
 
 interface Props {
   navigate: (p: Page) => void;

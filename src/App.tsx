@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTheme } from './hooks/useTheme';
 import Landing from './pages/Landing';
 import Survey from './pages/Survey';
 import Payment from './pages/Payment';
@@ -27,7 +26,6 @@ export default function App() {
   const [page, setPage] = useState<Page>('landing');
   const [surveyData, setSurveyData] = useState<SurveyData | null>(null);
   const [resumeData, setResumeData] = useState<any>(null);
-  const { theme, toggleTheme } = useTheme();
 
   const navigate = (p: Page) => setPage(p);
 
