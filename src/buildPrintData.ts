@@ -8,7 +8,7 @@
  */
 import type { SurveyData } from './App';
 import type { PrintData } from './pdfDocument';
-import { accentForTemplate } from './ResumeDocument';
+import { accentForTemplate } from './ResumeContent';
 
 /** Нормализация username: убирает @, протокол и хвостовой слэш (как в Preview). */
 export function normalizeUsername(value: string): string {
@@ -27,24 +27,22 @@ export function buildPrintData(resumeData: any, surveyData: SurveyData | null): 
   const personal = resumeData?.personal ?? {};
   const plan = surveyData?.plan ?? 'pro';
 
-  // Ссылки формируем так же, как в предпросмотре: сначала из данных резюме
-  // (если бэкенд их вернул), затем из анкеты.
-  const github = surveyData?.github || personal.github || '';
-  const telegram = surveyData?.telegram || personal.telegram || '';
-  const website = surveyData?.website || personal.website || '';
+  // Ссылки формируем ТАК ЖЕ, как в предпросмотре: берём значения только из
+  // анкеты (surveyData). Иначе веб и печать могут показать разные наборы
+  // кнопок, а цель варианта A — единый источник разметки и данных.
+  const github = surveyData?.github || '';
+  const telegram = surveyData?.telegram || '';
+  // В предпросмотре website используется как есть (без добавления https://),
+  // повторяем это поведение, чтобы кнопки были идентичны.
+  const websiteUrl = surveyData?.website || '';
 
   const githubUrl = github ? `https://github.com/${normalizeUsername(github)}` : '';
   const telegramUrl = telegram ? `https://t.me/${normalizeUsername(telegram)}` : '';
-  const websiteUrl = website
-    ? /^https?:\/\//i.test(website)
-      ? website
-      : `https://${website}`
-    : '';
 
   const links: PrintData['links'] = [];
   if (githubUrl) links.push({ label: 'GitHub', url: githubUrl, icon: 'github' });
   if (telegramUrl) links.push({ label: 'Telegram', url: telegramUrl, icon: 'telegram' });
-  if (websiteUrl) links.push({ label: normalizeUsername(websiteUrl), url: websiteUrl, icon: 'globe' });
+  if (websiteUrl) links.push({ label: '.me', url: websiteUrl, icon: 'globe' });
 
   return {
     personal: {

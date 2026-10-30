@@ -27,7 +27,11 @@ body {
   print-color-adjust: exact;
 }
 
-/* A4 при 96 DPI = 794 × 1123 px — те же размеры, что у .resume-page в вебе */
+/* A4 при 96 DPI = 794 × 1123 px — те же размеры, что у .resume-page в вебе.
+   В печати это ОДИН непрерывный контейнер: Chromium сам переносит контент по
+   страницам (секции не разрываются благодаря break-inside: avoid ниже).
+   overflow:hidden здесь недопустим — он обрезал бы второй «лист» документа,
+   а width:794px достаточно для совпадения метрик с предпросмотром. */
 .resume-page {
   width: 794px;
   min-height: 1123px;
@@ -39,14 +43,6 @@ body {
   line-height: 1.5;
   box-shadow: none !important;
   border-radius: 0 !important;
-  overflow: hidden;
-  break-after: page;
-  page-break-after: always;
-}
-
-.resume-page:last-child {
-  break-after: auto;
-  page-break-after: auto;
 }
 
 .resume-section {
