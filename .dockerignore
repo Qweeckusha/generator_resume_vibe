@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.git
+.idea
+*.log
+backend/venv
+__pycache__
+*.pyc
+DOCS
