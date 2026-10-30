@@ -1,0 +1,17 @@
+# Файлы и каталоги, которые НЕ попадают в контекст сборки Docker
+node_modules/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+*.log
+DOCS/
+README.md
+backend/resumes/
+backend/output/
+*.pdf

@@ -1,0 +1,70 @@
+# ============================================================
+# PULUM-PULUM — Docker Compose
+#   frontend : 3000  (nginx, раздаёт собранный Vite-бандл)
+#   backend  : 8000  (FastAPI)
+#   ollama   : 11434 (ЛЮБЫЕ ДРУГИЕ СЕРВИСЫ НЕ ДОЛЖНЫ ЗАНЯТЬ ЭТОТ ПОРТ!)
+# ============================================================
+
+services:
+
+  # ---------- Ollama (локальная LLM) ----------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pulum-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"   # Порт Ollama закреплён: 11434
+    volumes:
+      - ollama_data:/root/.ollama   # Модели переживают пересоздание контейнера
+    restart: unless-stopped
+    networks:
+      - pulum-net
+    # Для GPU на Linux (NVIDIA) раскомментируйте:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ---------- Бэкенд (FastAPI) ----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: pulum-backend
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      # Внутри сети compose Ollama доступна по имени сервиса
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - MODEL_NAME=${MODEL_NAME:-qwen3.5:4b}
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - pulum-net
+
+  # ---------- Фронтенд (React + Vite → nginx) ----------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        # В браузере хоста API доступен через прокси nginx: /api → backend
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    container_name: pulum-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - pulum-net
+
+volumes:
+  ollama_data:
+
+networks:
+  pulum-net:
+    driver: bridge

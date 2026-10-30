@@ -1,0 +1,33 @@
+# ============================================================
+# PULUM-PULUM — Бэкенд (FastAPI + клиент Ollama)
+# Порт приложения: 8000
+# Порт Ollama (хост): 11434 — задаётся через переменную OLLAMA_BASE_URL
+# ============================================================
+
+FROM python:3.11-slim
+
+# Защита от «сырых» байтов в логах и кэша pip
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Сначала зависимости — для кэширования слоёв
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем код бэкенда
+COPY backend/ ./
+
+# Адрес Ollama по умолчанию: localhost:11434 на хосте
+# (в docker-compose переопределяется на http://ollama:11434)
+ENV OLLAMA_BASE_URL="http://localhost:11434" \
+    MODEL_NAME="qwen3.5:4b"
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)" || exit 1
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

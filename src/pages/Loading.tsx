@@ -9,7 +9,9 @@ interface Props {
 }
 
 // URL бэкенда (изменить при деплое)
-const API_URL = 'http://localhost:8000';
+// Адрес бэкенда: берём из VITE_API_URL (подставляется при сборке Docker),
+// по умолчанию — localhost:8000
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Loading({ navigate, surveyData, setResumeData }: Props) {
   useEffect(() => {

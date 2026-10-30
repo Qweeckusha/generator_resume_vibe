@@ -3,11 +3,13 @@ Ollama Client — взаимодействие с локальной LLM
 Используется модель qwen3:8b (или другая, указанная в конфиге)
 """
 
+import os
+
 import httpx
 
-# Конфигурация
-OLLAMA_BASE_URL = "http://localhost:11434"
-MODEL_NAME = "qwen3.5:4b"
+# Конфигурация (можно переопределить переменными окружения — удобно для Docker)
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+MODEL_NAME = os.getenv("MODEL_NAME", "qwen3.5:4b")
 REQUEST_TIMEOUT = 180.0  # 2 минуты на генерацию
 
 
