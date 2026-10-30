@@ -29,6 +29,22 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
   const accent = getAccentColor();
 
+  // Функция для нормализации username (убирает @, https://, и т.д.)
+  const normalizeUsername = (value: string): string => {
+    if (!value) return '';
+    return value
+      .replace(/^https?:\/\//, '') // Убираем http:// или https://
+      .replace(/^@/, '') // Убираем @ в начале
+      .replace(/\/$/, '') // Убираем / в конце
+      .split('/')
+      .pop() || ''; // Берём последнюю часть (username)
+  };
+
+  // Формируем полные URL из username
+  const githubUrl = surveyData?.github ? `https://github.com/${normalizeUsername(surveyData.github)}` : '';
+  const telegramUrl = surveyData?.telegram ? `https://t.me/${normalizeUsername(surveyData.telegram)}` : '';
+  const websiteUrl = surveyData?.website || '';
+
   const downloadPDF = () => {
     const element = document.getElementById('resume-content');
     if (!element) return;
@@ -44,10 +60,10 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
     });
 
     const opt = {
-      margin: 10,
+      margin: [15, 15, 15, 15], // Увеличиваем margin со всех сторон [top, left, bottom, right]
       filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
+      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, // Фиксированная ширина A4 в px
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
@@ -232,11 +248,13 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
               </h2>
               
               {/* Social links as buttons */}
-              {(surveyData?.github || surveyData?.telegram || surveyData?.website) && (
+              {(githubUrl || telegramUrl || websiteUrl) && (
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  {surveyData?.github && (
+                  {githubUrl && (
                     <a 
-                      href={surveyData.github} 
+                      href={githubUrl} 
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 
@@ -256,9 +274,11 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                       GitHub
                     </a>
                   )}
-                  {surveyData?.telegram && (
+                  {telegramUrl && (
                     <a 
-                      href={surveyData.telegram} 
+                      href={telegramUrl} 
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 
@@ -278,9 +298,11 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                       Telegram
                     </a>
                   )}
-                  {surveyData?.website && (
+                  {websiteUrl && (
                     <a 
-                      href={surveyData.website} 
+                      href={websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer" 
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 

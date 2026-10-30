@@ -143,9 +143,15 @@ Figma, Jira, Slack, Notion
 **Вопрос:** "Добавь ссылки на свои профили и расскажи о языках — это поможет работодателю узнать тебя лучше."
 
 **Поля:**
-- GitHub (placeholder: "https://github.com/username")
-- Telegram (placeholder: "https://t.me/username")
+- GitHub username (placeholder: "username")
+  - Пользователь вводит только username (например: `ivanov`)
+  - Автоматически формируется ссылка: `https://github.com/ivanov`
+- Telegram username (placeholder: "@username или username")
+  - Пользователь вводит username с @ или без (например: `@ivanov` или `ivanov`)
+  - Автоматически формируется ссылка: `https://t.me/ivanov`
 - Личный сайт (placeholder: "https://username.me")
+  - Пользователь вводит полный URL
+  - Используется как есть
 - Языки (textarea, placeholder с примером)
 
 **Пример в placeholder для языков:**
@@ -155,9 +161,9 @@ English — B2 (Upper-Intermediate)
 Deutsch — A2 (Elementary)
 ```
 
-**Подсказка:** "💡 Можешь оставить поля пустыми, если не хочешь делиться этими данными."
+**Подсказка:** "💡 Для GitHub и Telegram достаточно указать только username. Можешь оставить поля пустыми, если не хочешь делиться этими данными."
 
-**Примечание:** В PDF ссылки отображаются как кнопки с логотипами (GitHub, Telegram, .me для личного сайта).
+**Примечание:** В PDF ссылки отображаются как кнопки с логотипами (GitHub, Telegram, .me для личного сайта). Система автоматически нормализует username (убирает @, https:// и т.д.) и формирует корректные ссылки.
 
 ---
 

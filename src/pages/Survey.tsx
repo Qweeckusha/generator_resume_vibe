@@ -241,19 +241,19 @@ Figma, Jira, Slack, Notion`}
               Добавь ссылки на свои профили и расскажи о языках — это поможет работодателю узнать тебя лучше.
             </p>
             <div>
-              <label className="block text-sm text-muted mb-1">GitHub</label>
+              <label className="block text-sm text-muted mb-1">GitHub username</label>
               <input
                 className="input-field"
-                placeholder="https://github.com/username"
+                placeholder="username"
                 value={data.github}
                 onChange={(e) => update('github', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">Telegram</label>
+              <label className="block text-sm text-muted mb-1">Telegram username</label>
               <input
                 className="input-field"
-                placeholder="https://t.me/username"
+                placeholder="@username или username"
                 value={data.telegram}
                 onChange={(e) => update('telegram', e.target.value)}
               />
@@ -278,7 +278,7 @@ Figma, Jira, Slack, Notion`}
               />
             </div>
             <p className="text-xs text-muted mt-3 italic">
-              💡 Можешь оставить поля пустыми, если не хочешь делиться этими данными.
+              💡 Для GitHub и Telegram достаточно указать только username.
             </p>
           </div>
         );
