@@ -119,63 +119,35 @@ async def generate_pdf_endpoint(resume_data: ResumeResponse):
 
 def build_prompt(survey: SurveyRequest) -> str:
     """Формирует промпт для LLM на основе данных анкеты"""
-    return f"""Ты — профессиональный HR-специалист и карьерный консультант. 
-Создай структурированное резюме на основе данных кандидата.
+    return f"""Создай резюме в JSON формате.
 
-Данные кандидата:
-- ФИО: {survey.fullName}
-- Email: {survey.email}
-- Телефон: {survey.phone}
-- Город: {survey.city}
-- Желаемая должность: {survey.position}
+Данные:
+ФИО: {survey.fullName}
+Email: {survey.email}
+Телефон: {survey.phone}
+Город: {survey.city}
+Должность: {survey.position}
 
-Опыт работы:
+Опыт:
 {survey.experience}
 
 Образование:
 {survey.education}
 
-Навыки:
-{survey.skills}
+Навыки: {survey.skills}
 
-О себе:
-{survey.about}
+О себе: {survey.about}
 
-Стиль шаблона: {survey.template}
-
-Верни ТОЛЬКО валидный JSON в следующем формате (без markdown, без пояснений):
+Верни JSON:
 {{
-  "personal": {{
-    "fullName": "ФИО",
-    "email": "email",
-    "phone": "телефон",
-    "city": "город",
-    "position": "должность"
-  }},
-  "summary": "Профессиональное резюме (3-4 предложения, продающий текст)",
-  "experience": [
-    {{
-      "company": "Название компании",
-      "position": "Должность",
-      "period": "Период работы",
-      "achievements": ["Достижение 1", "Достижение 2", "..."]
-    }}
-  ],
-  "education": [
-    {{
-      "institution": "Учебное заведение",
-      "degree": "Степень/специальность",
-      "period": "Годы обучения"
-    }}
-  ],
-  "skills": ["Навык 1", "Навык 2", "..."]
+  "personal": {{"fullName": "", "email": "", "phone": "", "city": "", "position": ""}},
+  "summary": "2-3 предложения",
+  "experience": [{{"company": "", "position": "", "period": "", "achievements": []}}],
+  "education": [{{"institution": "", "degree": "", "period": ""}}],
+  "skills": []
 }}
 
-Важно:
-1. Используй данные кандидата, но улучши формулировки
-2. Добавь конкретные метрики и достижения где возможно
-3. Summary должен быть продающим и профессиональным
-4. Верни ТОЛЬКО JSON, без обёрток и пояснений"""
+Только JSON, без пояснений."""
 
 
 def parse_model_response(raw: str, survey: SurveyRequest) -> dict:
