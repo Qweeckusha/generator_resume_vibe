@@ -151,7 +151,7 @@ html.light .glow-pulse {
 /* Page styles for resume preview */
 .resume-page {
   width: 794px; /* A4 width at 96 DPI */
-  height: 1123px; /* A4 height at 96 DPI */
+  min-height: 1123px; /* Minimum A4 height, expands if needed */
   background: white;
   color: #1a1a2e;
   padding: 75px; /* ~20mm converted to pixels */
@@ -161,7 +161,6 @@ html.light .glow-pulse {
   font-size: 11pt;
   line-height: 1.5;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* Prevent page breaks inside sections */
@@ -187,20 +186,20 @@ html.light .glow-pulse {
 
 /* Watermark background for Free plan */
 .watermark-bg {
-  background-image: repeating-linear-gradient(
-    -30deg,
-    transparent,
-    transparent 100px,
-    rgba(124, 58, 237, 0.03) 100px,
-    rgba(124, 58, 237, 0.03) 200px
-  );
+  background-image: 
+    repeating-linear-gradient(
+      -30deg,
+      transparent,
+      transparent 100px,
+      rgba(124, 58, 237, 0.03) 100px,
+      rgba(124, 58, 237, 0.03) 200px
+    );
   position: relative;
-  overflow: hidden;
 }
 
 .watermark-bg::before {
   content: 'PULUM-PULUM';
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-30deg);
