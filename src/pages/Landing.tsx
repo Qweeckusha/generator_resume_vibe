@@ -238,6 +238,12 @@ export default function Landing({ navigate }: Props) {
       {/* Footer */}
       <footer className="glass mt-20 px-6 py-8 text-center text-muted text-sm">
         <p>© 2026 PULUM-PULUM. Все права защищены.</p>
+        <button
+          onClick={() => navigate('developer')}
+          className="mt-4 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+        >
+          🛠️ Страница разработчика
+        </button>
       </footer>
     </div>
   );

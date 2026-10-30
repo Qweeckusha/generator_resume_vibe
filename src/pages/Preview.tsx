@@ -21,33 +21,76 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
   const getAccentColor = () => {
     switch (template) {
-      case 'classic': return '#1a365d';
-      case 'creative': return '#7c3aed';
-      default: return '#0f766e';
+      case 'classic': return '#1e40af'; // Насыщенный синий
+      case 'creative': return '#7c3aed'; // Яркий фиолетовый
+      default: return '#6d28d9'; // Насыщенный фиолетовый (modern)
     }
   };
 
   const accent = getAccentColor();
 
-  const downloadPDF = () => {
-    const element = document.getElementById('resume-content');
-    if (!element) return;
+  // Функция для нормализации username (убирает @, https://, и т.д.)
+  const normalizeUsername = (value: string): string => {
+    if (!value) return '';
+    return value
+      .replace(/^https?:\/\//, '') // Убираем http:// или https://
+      .replace(/^@/, '') // Убираем @ в начале
+      .replace(/\/$/, '') // Убираем / в конце
+      .split('/')
+      .pop() || ''; // Берём последнюю часть (username)
+  };
 
-    const opt = {
-      margin: 0,
-      filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+  // Формируем полные URL из username
+  const githubUrl = surveyData?.github ? `https://github.com/${normalizeUsername(surveyData.github)}` : '';
+  const telegramUrl = surveyData?.telegram ? `https://t.me/${normalizeUsername(surveyData.telegram)}` : '';
+  const websiteUrl = surveyData?.website || '';
 
-    html2pdf().set(opt).from(element).save();
+  const downloadPDF = async () => {
+    const pages = document.querySelectorAll('.resume-page');
+    if (pages.length === 0) return;
+
+    const pdf = new (window as any).jspdf.jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    });
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      
+      // Клонируем страницу для рендеринга
+      const clone = page.cloneNode(true) as HTMLElement;
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      document.body.appendChild(clone);
+
+      const canvas = await (window as any).html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        width: 794,
+        height: 1123
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      
+      if (i > 0) {
+        pdf.addPage();
+      }
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      
+      document.body.removeChild(clone);
+    }
+
+    pdf.save(`resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
     <div className="min-h-screen px-4 py-8">
       {/* Toolbar */}
-      <div className="max-w-[210mm] mx-auto mb-6">
+      <div className="max-w-[794px] mx-auto mb-6">
         <div className="glass rounded-2xl p-4 flex items-center justify-between flex-wrap gap-4">
           <button
             onClick={() => navigate('landing')}
@@ -87,26 +130,16 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
       </div>
 
       {/* Resume Pages */}
-      <div className="max-w-[210mm] mx-auto">
-        <div id="resume-content">
-        {/* Page 1 */}
-        <motion.div
-          className="resume-page relative"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Watermark for Free plan */}
-          {isFree && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
-                PULUM-PULUM
-              </div>
-            </div>
-          )}
-
+      <div className="max-w-[794px] mx-auto">
+          {/* Page 1 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
           {/* Header */}
-          <div style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
+          <div className="resume-section" style={{ borderBottom: `3px solid ${accent}`, paddingBottom: '16px', marginBottom: '20px' }}>
             <h1 style={{ fontSize: '28pt', fontWeight: 'bold', color: accent, margin: 0 }}>
               {personal.fullName}
             </h1>
@@ -120,18 +153,20 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </div>
           </div>
 
-          {/* Summary */}
-          <section style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Профессиональное резюме
-            </h2>
-            <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
-              {summary}
-            </p>
-          </section>
+          {/* Profile (Summary) */}
+          {summary && (
+            <section className="resume-section">
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Профиль
+              </h2>
+              <p style={{ fontSize: '11pt', lineHeight: '1.6', color: '#333' }}>
+                {summary}
+              </p>
+            </section>
+          )}
 
           {/* Experience */}
-          <section style={{ marginBottom: '24px' }}>
+          <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Опыт работы
             </h2>
@@ -154,26 +189,17 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
               </div>
             ))}
           </section>
-        </motion.div>
+          </motion.div>
 
-        {/* Page 2 */}
-        <motion.div
-          className="resume-page relative"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {/* Watermark for Free plan */}
-          {isFree && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <div className="text-6xl font-bold text-purple-500/20 rotate-[-30deg] select-none">
-                PULUM-PULUM
-              </div>
-            </div>
-          )}
-
-          {/* Education */}
-          <section style={{ marginBottom: '24px' }}>
+          {/* Page 2 */}
+          <motion.div
+            className={`resume-page relative ${isFree ? 'watermark-bg' : ''}`}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Education */}
+            <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Образование
             </h2>
@@ -189,7 +215,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           </section>
 
           {/* Skills */}
-          <section style={{ marginBottom: '24px' }}>
+          <section className="resume-section">
             <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Ключевые навыки
             </h2>
@@ -198,6 +224,9 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                 <span
                   key={i}
                   style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     background: `${accent}15`,
                     color: accent,
                     padding: '6px 14px',
@@ -205,6 +234,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                     fontSize: '10pt',
                     fontWeight: '500',
                     border: `1px solid ${accent}30`,
+                    lineHeight: '1',
                   }}
                 >
                   {skill}
@@ -214,16 +244,104 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           </section>
 
           {/* Additional info */}
-          <section style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Дополнительная информация
-            </h2>
-            <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.6' }}>
-              <p><strong>Языки:</strong> Русский (родной), English (B2 — Upper-Intermediate)</p>
-              <p><strong>Портфолио:</strong> github.com/ivanov • linkedin.com/in/ivanov</p>
-              <p><strong>Рекомендации:</strong> Предоставляются по запросу</p>
-            </div>
-          </section>
+          {(surveyData?.github || surveyData?.telegram || surveyData?.website || surveyData?.languages) && (
+            <section style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '13pt', fontWeight: 'bold', color: accent, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Дополнительная информация
+              </h2>
+              
+              {/* Social links as buttons */}
+              {(githubUrl || telegramUrl || websiteUrl) && (
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                  {githubUrl && (
+                    <a 
+                      href={githubUrl} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        backgroundColor: accent,
+                        color: 'white',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        fontSize: '10pt',
+                        fontWeight: '500',
+                        lineHeight: '1'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                      </svg>
+                      GitHub
+                    </a>
+                  )}
+                  {telegramUrl && (
+                    <a 
+                      href={telegramUrl} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        backgroundColor: accent,
+                        color: 'white',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        fontSize: '10pt',
+                        fontWeight: '500',
+                        lineHeight: '1'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                      </svg>
+                      Telegram
+                    </a>
+                  )}
+                  {websiteUrl && (
+                    <a 
+                      href={websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer" 
+                      style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '6px 16px',
+                        backgroundColor: accent,
+                        color: 'white',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        fontSize: '10pt',
+                        fontWeight: '500',
+                        lineHeight: '1'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                      </svg>
+                      .me
+                    </a>
+                  )}
+                </div>
+              )}
+              
+              {/* Languages */}
+              {surveyData?.languages && (
+                <div style={{ fontSize: '10.5pt', color: '#333', lineHeight: '1.6' }}>
+                  <p><strong>Языки:</strong> {surveyData.languages.replace(/\n/g, ', ')}</p>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Cover letter section (only for Pro+ and Premium) */}
           {(plan === 'pro_plus' || plan === 'premium') && (
@@ -250,11 +368,10 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
-        </div>
       </div>
 
       {/* Bottom actions */}
-      <div className="max-w-[210mm] mx-auto mt-8 mb-12">
+      <div className="max-w-[794px] mx-auto mt-8 mb-12">
         <div className="glass rounded-2xl p-6 text-center">
           {isFree ? (
             <>

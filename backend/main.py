@@ -35,6 +35,10 @@ class SurveyRequest(BaseModel):
     education: str
     skills: str
     about: str
+    github: str = ""
+    telegram: str = ""
+    website: str = ""
+    languages: str = ""
     template: str  # 'classic', 'modern', 'creative'
 
 
@@ -152,7 +156,7 @@ def build_prompt(survey: SurveyRequest) -> str:
     "city": "город",
     "position": "должность"
   }},
-  "summary": "Профессиональное резюме (3-4 предложения, продающий текст)",
+  "summary": "Профиль кандидата (3-4 предложения, продающий текст)",
   "experience": [
     {{
       "company": "Название компании",

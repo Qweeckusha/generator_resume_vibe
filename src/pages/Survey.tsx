@@ -15,6 +15,7 @@ const STEPS = [
   { id: 'education', title: 'Образование', icon: '🎓' },
   { id: 'skills', title: 'Навыки', icon: '⚡' },
   { id: 'about', title: 'О себе', icon: '✨' },
+  { id: 'links', title: 'Ссылки', icon: '🔗' },
   { id: 'plan', title: 'Тариф', icon: '💳' },
   { id: 'template', title: 'Шаблон', icon: '🎨' },
 ];
@@ -32,6 +33,10 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       education: '',
       skills: '',
       about: '',
+      github: '',
+      telegram: '',
+      website: '',
+      languages: '',
       template: 'modern',
       plan: 'pro',
     }
@@ -231,6 +236,54 @@ Figma, Jira, Slack, Notion`}
         );
       case 6:
         return (
+          <div className="space-y-4">
+            <p className="text-muted mb-6">
+              Добавь ссылки на свои профили и расскажи о языках — это поможет работодателю узнать тебя лучше.
+            </p>
+            <div>
+              <label className="block text-sm text-muted mb-1">GitHub username</label>
+              <input
+                className="input-field"
+                placeholder="username"
+                value={data.github}
+                onChange={(e) => update('github', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Telegram username</label>
+              <input
+                className="input-field"
+                placeholder="@username или username"
+                value={data.telegram}
+                onChange={(e) => update('telegram', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Личный сайт</label>
+              <input
+                className="input-field"
+                placeholder="https://username.me"
+                value={data.website}
+                onChange={(e) => update('website', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Языки</label>
+              <textarea
+                className="input-field"
+                rows={3}
+                placeholder="Русский — родной&#10;English — B2 (Upper-Intermediate)&#10;Deutsch — A2 (Elementary)"
+                value={data.languages}
+                onChange={(e) => update('languages', e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted mt-3 italic">
+              💡 Для GitHub и Telegram достаточно указать только username.
+            </p>
+          </div>
+        );
+      case 7:
+        return (
           <div>
             <p className="text-muted mb-6">
               У нас есть несколько вариантов — от бесплатного до премиум. Выбери тот, который подходит именно тебе.
@@ -272,7 +325,7 @@ Figma, Jira, Slack, Notion`}
             </p>
           </div>
         );
-      case 7:
+      case 8:
         return (
           <div>
             <p className="text-muted mb-6">

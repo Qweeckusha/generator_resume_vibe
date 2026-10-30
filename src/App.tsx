@@ -4,8 +4,9 @@ import Survey from './pages/Survey';
 import Payment from './pages/Payment';
 import Preview from './pages/Preview';
 import Loading from './pages/Loading';
+import Developer from './pages/Developer';
 
-export type Page = 'landing' | 'survey' | 'payment' | 'loading' | 'preview';
+export type Page = 'landing' | 'survey' | 'payment' | 'loading' | 'preview' | 'developer';
 export type Plan = 'free' | 'pro' | 'pro_plus' | 'premium';
 
 export interface SurveyData {
@@ -18,6 +19,10 @@ export interface SurveyData {
   education: string;
   skills: string;
   about: string;
+  github: string;
+  telegram: string;
+  website: string;
+  languages: string;
   template: 'classic' | 'modern' | 'creative';
   plan: Plan;
 }
@@ -44,6 +49,7 @@ export default function App() {
         <Loading navigate={navigate} surveyData={surveyData} setResumeData={setResumeData} />
       )}
       {page === 'preview' && <Preview navigate={navigate} resumeData={resumeData} surveyData={surveyData} />}
+      {page === 'developer' && <Developer navigate={navigate} setSurveyData={setSurveyData} />}
     </div>
   );
 }
