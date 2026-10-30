@@ -6,22 +6,22 @@
  * по-своему измеряет шрифты и переносит строки, поэтому идеальная веб-вёрстка
  * при выгрузке в PDF неизбежно разъезжалась.
  *
- * Кнопка «Скачать PDF» вызывает системный диалог печати этой же страницы:
- * тот же Chromium и та же разметка ResumeContent, поэтому вёрстка PDF
- * совпадает с предпросмотром один-в-один.
+ * Кнопка «Скачать PDF» открывает системный диалог печати, но НЕ из этого окна:
+ * печать запускается из скрытого iframe с чистой страницей /print.html
+ * (см. src/printBridge.ts). Причина: в DOM сайта есть полноэкранные обёртки
+ * (min-h-screen, паддинги тулбаров) и скрытый дубль печатной разметки —
+ * их высота складывалась с полями документа, давая верхний отступ ≈ 1/5 листа,
+ * а дубль добавлял пустые страницы после текстовых. В iframe печатается только
+ * сам документ, поэтому разрывы страниц ровно там, где задано CSS.
  *
- * Две роли разметки (см. src/index.css, @media print):
- *  • .screen-sheets — карточки A4, которые видит пользователь на сайте;
- *  • .print-root    — ОДНА непрерывная лента (ResumeDocument), которая
- *    уходит в PDF. Chromium сам переносит её по страницам, поэтому пустые
- *    листы между «страницами предпросмотра» больше не появляются.
+ * Разметка одна на оба режима — ResumeContent: тот же Chromium, те же стили,
+ * поэтому PDF совпадает с предпросмотром один-в-один.
  */
 import { motion } from 'framer-motion';
 import type { Page, SurveyData } from '../App';
 import ResumeContent from '../ResumeContent';
-import ResumeDocument from '../ResumeDocument';
 import { buildPrintData } from '../buildPrintData';
-import { writePrintData } from '../pdfDocument';
+import { printResume } from '../printBridge';
 
 interface Props {
   navigate: (p: Page) => void;
@@ -38,23 +38,22 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
   const plan = surveyData?.plan || 'pro';
   const isFree = plan === 'free';
 
-  /**
-   * Скачивание PDF (вариант A): печать через браузер. Системный диалог печати
-   * открывается на самой странице предпросмотра; в @media print из src/index.css
-   * скрыт весь интерфейс сайта, а в PDF уходит непрерывная лента .print-root
-   * (ResumeDocument). Тот же Chromium и та же разметка ResumeContent, что на
-   * экране, поэтому текст в плавках навыков и кнопках-ссылках стоит ровно там же.
-   */
-  const downloadPDF = () => {
-    // Дублируем данные в sessionStorage: печать всегда берёт тот же объект,
-    // что и предпросмотр (страховка от расхождения источников данных).
-    writePrintData(printData);
-    window.print();
-  };
-
   // Единый объект данных для обеих страниц предпросмотра и для печати:
   // предпросмотр и PDF гарантированно получают одни и те же данные.
   const printData = buildPrintData(resumeData, surveyData);
+
+  /**
+   * Скачивание PDF (вариант A): печать через браузер из чистого iframe
+   * /print.html. Диалог печати откроется с содержимым iframe, где лежит ровно
+   * та же разметка ResumeContent, что на экране, — текст в плавках навыков и
+   * кнопках-ссылках стоит там же, без верхнего смещения и пустых листов.
+   * Если браузер не дал напечатать из iframe — запасной путь: печать текущего
+   * окна (для неё в @media print скрыт весь интерфейсный обвес).
+   */
+  const downloadPDF = async () => {
+    const ok = await printResume(printData);
+    if (!ok) window.print();
+  };
 
   return (
     <div className="min-h-screen px-4 py-8">
@@ -102,9 +101,9 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           поэтому PDF из диалога печати совпадает с предпросмотром один-в-один.
 
           screen-sheets — то, что видит пользователь на сайте: две карточки A4.
-          print-root    — то, что уходит в PDF: ОДНА непрерывная лента со всем
-          содержимым. Её переносит по страницам сам Chromium, поэтому пустых
-          листов между «страницами предпросмотра» больше не появляется. */}
+          В PDF уходит печатная страница /print.html (скрытый iframe): там лежит
+          одна лента .print-root со всем содержимым, разрывы в которой задаёт
+          CSS, а не высота экранных карточек. */}
       <div className="max-w-[794px] mx-auto screen-sheets">
           {/* Page 1 */}
           <motion.div
@@ -125,11 +124,6 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
           >
             <ResumeContent data={printData} page="second" />
           </motion.div>
-      </div>
-
-      {/* Печатная версия: видима ТОЛЬКО при печати (@media print) */}
-      <div className="print-only">
-        <ResumeDocument data={printData} />
       </div>
 
       {/* Bottom actions */}

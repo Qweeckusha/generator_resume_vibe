@@ -164,32 +164,51 @@ html.light .glow-pulse {
 }
 
 /* ===== ПЕЧАТЬ (вариант A: PDF через диалог печати Chromium) =====
-   При печати скрываем весь интерфейсный «обвес» сайта (тулбары, кнопки,
-   анимированный фон) и оставляем только сам документ. Разметка внутри
-   карточек — та же компонента ResumeContent, что и на экране, поэтому
-   вёрстка PDF совпадает с предпросмотром один-в-один. */
-/* Масштаб: A4 (210 мм) при 96 DPI = 794 px, значит 1 мм = 794/210 px.
-   Отступы карточек в px и поля @page в mm задаются из одной переменной,
-   поэтому на экране и в PDF контент стоит на одинаковом расстоянии от края. */
-:root {
-  --resume-pad-px: 75px;                                    /* ~20 мм */
-  --resume-pad-mm: calc(75 * 210 / 794);                     /* те же 75 px в мм */
-}
 
-/* Единый контейнер для ПЕЧАТИ (.print-root) — одна длинная «лента» вместо
-   двух жёстких листов A4. Карточки предпросмотра при печати схлопываются в
-   обычные блоки и сливаются в непрерывный поток, который Chromium переносит
-   по страницам САМ (секции не разрываются: break-inside: avoid у
-   .resume-section). Жёсткие листы + break-after: page как раз и рождали
-   пустые страницы между содержательными. */
-.print-only {
-  display: none;
+   Архитектура печати (исправляет «отступ в 1/5 страницы сверху» и «пустую
+   страницу после каждой текстовой»):
+
+   РАНЬШЕ печать шла из основного окна: там документ обёрнут в полноэкранные
+   контейнеры (min-h-screen, flex-центрирование, паддинги тулбаров), а рядом
+   лежит скрытый дубль (.print-only → .print-root). Именно эта связка и
+   давала оба дефекта:
+    • лишний вертикальный offset от обёрток Preview складывался с полями
+      ленты → верхний отступ первой страницы ≈ 1/5 листа;
+    • скрытый блок с display:none в основном документе при переходе в print
+      становился видимым и растягивался на всю свою высоту, тогда как
+      карточки уже были скрыты → после текста появлялся пустой лист.
+
+   СЕЙЧАС печать вызывается из ЧИСТого iframe (/print.html), DOM которого
+   содержит ТОЛЬКО сам документ: ни обёрток, ни дублей, ни анимаций.
+   Правила ниже действуют и для основного окна (если пользователь печатает
+   через Ctrl+P), но основной путь — именно iframe. */
+
+/* Единая мера внутренних полей документа: 75 px при 96 DPI ≈ 19.8 мм.
+   В CSS-модуле печати она задана в mm напрямую (см. print.css), здесь —
+   для экранных карточек. */
+
+/* Печатная разметка живёт НЕ в этом окне, а на чистой странице /print.html
+   (src/print.tsx), которую Preview грузит в скрытый iframe. Поэтому в DOM
+   сайта больше нет ни .print-only, ни .print-root: их не нужно ни скрывать,
+   ни «проявлять» при печати — источник пустых листов и лишнего верхнего
+   отступа (скрытый дубль ленты + полноэкранные обёртки) просто исчез. */
+
+/* Класс принудительного разрыва страницы: ставится вручную МЕЖДУ смысловыми
+   страницами резюме (ResumeDocument), чтобы Chromium не резал контент там,
+   где не надо. Полные правила — в src/print.css; здесь дублируем их, чтобы
+   печать основного окна (Ctrl+P, запасной путь) вела себя так же. */
+.page-break {
+  break-after: page;
+  page-break-after: always;
+  height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
 }
 
 @media print {
-  /* Поля печати = «Нет» (0): рамку A4 обеспечивает сам лист, а внутренние
-     отступы рисует лента. Иначе браузер прибавил бы свои дефолтные поля
-     (~10 мм) к нашим 75 px — отсюда и «отступ в 1/5 страницы». */
+  /* Поля печати = 0: рамку A4 обеспечивает сам лист, внутренние отступы
+     рисует документ. Иначе браузер прибавил бы свои дефолтные поля (~10 мм)
+     к нашим 75 px — отсюда и «отступ в 1/5 страницы». */
   @page {
     size: A4 portrait;
     margin: 0;
@@ -200,10 +219,12 @@ html.light .glow-pulse {
     background: #ffffff !important;
     margin: 0 !important;
     padding: 0 !important;
-    /* body{min-height:100vh} растягивал документ на высоту экрана и
-       добавлял пустые страницы после контента */
+    /* min-height:100vh растягивал документ на высоту экрана и добавлял
+       пустые страницы ПОСЛЕ контента (последняя страница всегда неполная) */
     min-height: 0 !important;
     height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
   }
 
   /* Фон сайта и полноэкранные обёртки не должны растекаться за пределы листов */
@@ -214,69 +235,36 @@ html.light .glow-pulse {
 
   .animated-bg,
   .min-h-screen,
-  .h-screen {
-    min-height: 0 !important;
-    height: auto !important;
-  }
-
-  body * {
-    visibility: hidden;
-  }
-
-  .print-root,
-  .print-root * {
-    visibility: visible;
-  }
-
-  .print-only {
-    display: block;
-  }
-
-  /* Веб-карточки на печати не нужны: их содержимое дублирует печатная лента,
-     иначе каждый раздел печатался бы дважды. */
-  .screen-sheets {
-    display: none !important;
-  }
-
-  /* Лента = непрерывный документ шириной ровно в лист A4.
-     Никаких break-after/page-break-after: always — лишние разрывы и были
-     источником пустых страниц. */
-  .print-root {
-    width: 210mm !important;
-    max-width: 210mm !important;
-    margin: 0 !important;
-    padding: var(--resume-pad-mm) !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Внутри ленты карточки становятся обычными блоками: без размеров листа,
-     отступов, теней и скруглений. */
-  .print-root .resume-page {
-    width: auto !important;
-    max-width: none !important;
+  .h-screen,
+  .flex,
+  .grid {
+    display: block !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
-    break-before: auto !important;
-    break-after: auto !important;
-    page-break-before: auto !important;
-    page-break-after: auto !important;
   }
 
-  /* Вотермарка Free-тарифа: в вебе её рисует .watermark-bg на карточке,
-     в ленте фон переносим на контейнер целиком (inline-стиль WATERMARK_STYLE),
-     поэтому здесь лишь фиксируем область рисования внутри полей. */
-  .print-root.watermarked {
-    background-origin: content-box;
-    background-clip: content-box;
+  /* Интерфейс сайта (тулбары, кнопки, фон) на печать не уходит: скрыт весь
+     контент кроме карточек резюме, которые печатаются как есть. */
+  body :not(.screen-sheets):not(.screen-sheets *) {
+    visibility: hidden;
+  }
+
+  /* Карточки предпросмотра = тот же ResumeContent, что и в PDF из iframe,
+     поэтому Ctrl+P с сайта даёт ту же вёрстку (запасной путь). */
+  .screen-sheets {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .resume-page {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
