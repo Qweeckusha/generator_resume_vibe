@@ -34,7 +34,8 @@ export default function Survey({ navigate, surveyData, setSurveyData }: Props) {
       skills: '',
       about: '',
       github: '',
-      linkedin: '',
+      telegram: '',
+      website: '',
       languages: '',
       template: 'modern',
       plan: 'pro',
@@ -249,12 +250,21 @@ Figma, Jira, Slack, Notion`}
               />
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">LinkedIn</label>
+              <label className="block text-sm text-muted mb-1">Telegram</label>
               <input
                 className="input-field"
-                placeholder="https://linkedin.com/in/username"
-                value={data.linkedin}
-                onChange={(e) => update('linkedin', e.target.value)}
+                placeholder="https://t.me/username"
+                value={data.telegram}
+                onChange={(e) => update('telegram', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1">Личный сайт</label>
+              <input
+                className="input-field"
+                placeholder="https://username.me"
+                value={data.website}
+                onChange={(e) => update('website', e.target.value)}
               />
             </div>
             <div>

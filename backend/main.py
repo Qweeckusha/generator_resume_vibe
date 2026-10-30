@@ -35,6 +35,10 @@ class SurveyRequest(BaseModel):
     education: str
     skills: str
     about: str
+    github: str = ""
+    telegram: str = ""
+    website: str = ""
+    languages: str = ""
     template: str  # 'classic', 'modern', 'creative'
 
 

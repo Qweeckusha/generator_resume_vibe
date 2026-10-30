@@ -19,7 +19,8 @@ export interface SurveyData {
   skills: string;
   about: string;
   github: string;
-  linkedin: string;
+  telegram: string;
+  website: string;
   languages: string;
   template: 'classic' | 'modern' | 'creative';
   plan: Plan;

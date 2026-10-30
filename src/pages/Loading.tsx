@@ -51,6 +51,10 @@ export default function Loading({ navigate, surveyData, setResumeData }: Props) 
             phone: surveyData?.phone || '+7 (999) 123-45-67',
             city: surveyData?.city || 'Москва',
             position: surveyData?.position || 'Frontend-разработчик',
+            github: surveyData?.github || '',
+            telegram: surveyData?.telegram || '',
+            website: surveyData?.website || '',
+            languages: surveyData?.languages || '',
           },
           summary:
             'Опытный frontend-разработчик с 3+ годами коммерческого опыта. Специализируюсь на создании высоконагруженных SPA-приложений с использованием React и TypeScript. Имею успешный опыт руководства командой из 5 разработчиков и внедрения лучших практик разработки.',

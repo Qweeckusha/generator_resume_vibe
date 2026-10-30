@@ -163,7 +163,7 @@ pip install -r requirements.txt
 - [ ] Шаг 4: Образование — textarea с примером
 - [ ] Шаг 5: Навыки — textarea с примером
 - [ ] Шаг 6: О себе — textarea с примером
-- [ ] Шаг 7: Ссылки — GitHub, LinkedIn, языки
+- [ ] Шаг 7: Ссылки — GitHub, Telegram, Личный сайт, языки
 - [ ] Шаг 8: Тариф — выбор Free/Pro/Pro+/Premium
 - [ ] Шаг 9: Шаблон — выбор Classic/Modern/Creative
 - [ ] Прогресс-бар обновляется
