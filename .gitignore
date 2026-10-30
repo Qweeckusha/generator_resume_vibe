@@ -1,6 +1,2 @@
-node_modules/
-.next/
-dist/
-build/
-*.log
-.idea
+__pycache__/
+*.pyc

@@ -49,6 +49,12 @@ class ResumeResponse(BaseModel):
     education: list
     skills: list
     template: str
+    # Поля для PDF (кнопки-ссылки и языки). Необязательные — старые клиенты
+    # могут их не присылать; frontend эти поля игнорирует.
+    githubUrl: str = ""
+    telegramUrl: str = ""
+    websiteUrl: str = ""
+    languages: str = ""
 
 
 # ============ Routes ============
