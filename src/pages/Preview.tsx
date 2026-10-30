@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import type { Page, SurveyData } from '../App';
 
+declare const html2pdf: any;
+
 interface Props {
   navigate: (p: Page) => void;
   resumeData: any;
@@ -26,6 +28,21 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
   };
 
   const accent = getAccentColor();
+
+  const downloadPDF = () => {
+    const element = document.getElementById('resume-content');
+    if (!element) return;
+
+    const opt = {
+      margin: 0,
+      filename: `resume_${personal.fullName.replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
 
   return (
     <div className="min-h-screen px-4 py-8">
@@ -61,7 +78,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
               className="btn-primary text-sm px-6 py-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.print()}
+              onClick={downloadPDF}
             >
               📥 Скачать PDF
             </motion.button>
@@ -71,6 +88,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
 
       {/* Resume Pages */}
       <div className="max-w-[210mm] mx-auto">
+        <div id="resume-content">
         {/* Page 1 */}
         <motion.div
           className="resume-page relative"
@@ -232,6 +250,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
             </section>
           )}
         </motion.div>
+        </div>
       </div>
 
       {/* Bottom actions */}
@@ -246,7 +265,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                 <button className="btn-secondary" onClick={() => navigate('survey')}>
                   ✏️ Обновить до Pro
                 </button>
-                <button className="btn-primary" onClick={() => window.print()}>
+                <button className="btn-primary" onClick={downloadPDF}>
                   📥 Скачать с вотермаркой
                 </button>
               </div>
@@ -258,7 +277,7 @@ export default function Preview({ navigate, resumeData, surveyData }: Props) {
                 <button className="btn-secondary" onClick={() => navigate('survey')}>
                   ✏️ Редактировать
                 </button>
-                <button className="btn-primary" onClick={() => window.print()}>
+                <button className="btn-primary" onClick={downloadPDF}>
                   📥 Скачать PDF
                 </button>
               </div>
