@@ -10,8 +10,32 @@ interface Props {
 
 export default function Loading({ navigate, surveyData, setResumeData }: Props) {
   useEffect(() => {
-    const generate = async () => {
-      await new Promise((r) => setTimeout(r, 4000));
+  const generate = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/generate-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: surveyData?.fullName || '',
+          email: surveyData?.email || '',
+          phone: surveyData?.phone || '',
+          city: surveyData?.city || '',
+          position: surveyData?.position || '',
+          experience: surveyData?.experience || '',
+          education: surveyData?.education || '',
+          skills: surveyData?.skills || '',
+          about: surveyData?.about || '',
+          template: surveyData?.template || 'modern',
+        }),
+      });
+
+      if (!response.ok) throw new Error('Ошибка генерации');
+
+      const data = await response.json();
+      setResumeData(data);
+      navigate('preview');
+    } catch (error) {
+      console.error('Ошибка:', error);
 
       const resumeData = {
         personal: {
@@ -77,10 +101,11 @@ export default function Loading({ navigate, surveyData, setResumeData }: Props) 
 
       setResumeData(resumeData);
       navigate('preview');
-    };
+    }
+  };
 
-    generate();
-  }, []);
+  generate();
+}, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
